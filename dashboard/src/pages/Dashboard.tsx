@@ -1,5 +1,5 @@
 import { useLiveStore } from '../stores/liveStore'
-import { Play, Square, Radio as RadioIcon, TrendingUp, Users, Video } from 'lucide-react'
+import { Radio as RadioIcon, Users, Video } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 interface ChannelAnalytics {
