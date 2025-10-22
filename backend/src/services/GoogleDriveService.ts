@@ -18,8 +18,9 @@ export class GoogleDriveService {
    */
   async listVideos(maxResults: number = 20) {
     try {
+      const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || '1jABnVVpYT3IVR6O3XMYy6luRNkefkLVE';
       const response = await this.drive.files.list({
-        q: "mimeType contains 'video/' and trashed=false",
+        q: `mimeType contains 'video/' and trashed=false and '${folderId}' in parents`,
         fields: 'files(id, name, mimeType, size, createdTime, thumbnailLink, webViewLink)',
         pageSize: maxResults,
         orderBy: 'modifiedTime desc'
@@ -37,8 +38,9 @@ export class GoogleDriveService {
    */
   async listAudio(maxResults: number = 20) {
     try {
+      const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || '1jABnVVpYT3IVR6O3XMYy6luRNkefkLVE';
       const response = await this.drive.files.list({
-        q: "mimeType contains 'audio/' and trashed=false",
+        q: `mimeType contains 'audio/' and trashed=false and '${folderId}' in parents`,
         fields: 'files(id, name, mimeType, size, createdTime, webViewLink)',
         pageSize: maxResults,
         orderBy: 'modifiedTime desc'
