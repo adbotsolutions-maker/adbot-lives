@@ -133,48 +133,69 @@ export class VPSService extends EventEmitter {
 
       let ffmpegCommand: string;
 
-      if (config.removeAudio) {
-        // Comando com vídeo MUDO (sem áudio)
-        ffmpegCommand = `
-          nohup ffmpeg \\
-            ${loopFlag} \\
-            -re -i "${config.videoPath}" \\
-            -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
-            -pix_fmt yuv420p -g 50 -an \\
-            ${durationFlag} \\
-            -f flv "${fullStreamUrl}" \\
-            > /tmp/ffmpeg_stream.log 2>&1 &
-          echo $!
-        `.trim().replace(/\s+/g, ' ');
-      } else if (config.audioPath) {
-        // Comando com mixagem de áudio (vídeo + música de fundo)
-        ffmpegCommand = `
-          nohup ffmpeg \\
-            ${loopFlag} -re -i "${config.videoPath}" \\
-            -stream_loop -1 -i "${config.audioPath}" \\
-            -filter_complex "[0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=2[aout]" \\
-            -map 0:v -map "[aout]" \\
-            -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
-            -pix_fmt yuv420p -g 50 \\
-            -c:a aac -b:a 128k -ar 44100 \\
-            ${durationFlag} \\
-            -f flv "${fullStreamUrl}" \\
-            > /tmp/ffmpeg_stream.log 2>&1 &
-          echo $!
-        `.trim().replace(/\s+/g, ' ');
+      if (config.audioPath) {
+        // Comando com música de fundo
+        if (config.removeAudio) {
+          // Vídeo MUDO + Música de fundo (apenas o áudio da música)
+          ffmpegCommand = `
+            nohup ffmpeg \\
+              ${loopFlag} -re -i "${config.videoPath}" \\
+              -stream_loop -1 -i "${config.audioPath}" \\
+              -map 0:v -map 1:a \\
+              -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
+              -pix_fmt yuv420p -g 50 \\
+              -c:a aac -b:a 128k -ar 44100 \\
+              ${durationFlag} \\
+              -f flv "${fullStreamUrl}" \\
+              > /tmp/ffmpeg_stream.log 2>&1 &
+            echo $!
+          `.trim().replace(/\s+/g, ' ');
+        } else {
+          // Vídeo com áudio + Música de fundo (mixagem)
+          ffmpegCommand = `
+            nohup ffmpeg \\
+              ${loopFlag} -re -i "${config.videoPath}" \\
+              -stream_loop -1 -i "${config.audioPath}" \\
+              -filter_complex "[0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=2[aout]" \\
+              -map 0:v -map "[aout]" \\
+              -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
+              -pix_fmt yuv420p -g 50 \\
+              -c:a aac -b:a 128k -ar 44100 \\
+              ${durationFlag} \\
+              -f flv "${fullStreamUrl}" \\
+              > /tmp/ffmpeg_stream.log 2>&1 &
+            echo $!
+          `.trim().replace(/\s+/g, ' ');
+        }
       } else {
-        // Comando sem música de fundo (só vídeo)
-        ffmpegCommand = `
-          nohup ffmpeg \\
-            ${loopFlag} \\
-            -re -i "${config.videoPath}" \\
-            -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
-            -pix_fmt yuv420p -g 50 -c:a aac -b:a 128k -ar 44100 \\
-            ${durationFlag} \\
-            -f flv "${fullStreamUrl}" \\
-            > /tmp/ffmpeg_stream.log 2>&1 &
-          echo $!
-        `.trim().replace(/\s+/g, ' ');
+        // Sem música de fundo
+        if (config.removeAudio) {
+          // Vídeo MUDO (sem áudio algum)
+          ffmpegCommand = `
+            nohup ffmpeg \\
+              ${loopFlag} \\
+              -re -i "${config.videoPath}" \\
+              -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
+              -pix_fmt yuv420p -g 50 -an \\
+              ${durationFlag} \\
+              -f flv "${fullStreamUrl}" \\
+              > /tmp/ffmpeg_stream.log 2>&1 &
+            echo $!
+          `.trim().replace(/\s+/g, ' ');
+        } else {
+          // Vídeo com áudio normal
+          ffmpegCommand = `
+            nohup ffmpeg \\
+              ${loopFlag} \\
+              -re -i "${config.videoPath}" \\
+              -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
+              -pix_fmt yuv420p -g 50 -c:a aac -b:a 128k -ar 44100 \\
+              ${durationFlag} \\
+              -f flv "${fullStreamUrl}" \\
+              > /tmp/ffmpeg_stream.log 2>&1 &
+            echo $!
+          `.trim().replace(/\s+/g, ' ');
+        }
       }
 
       console.log('🎥 Iniciando FFmpeg no VPS...');
