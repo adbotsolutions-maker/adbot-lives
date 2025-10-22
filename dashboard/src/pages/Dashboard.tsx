@@ -1,5 +1,5 @@
 import { useLiveStore } from '../stores/liveStore'
-import { Radio as RadioIcon, Users, Video } from 'lucide-react'
+import { Radio as RadioIcon, Users, Video, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { API_ENDPOINTS } from '../config/api'
 
@@ -19,15 +19,53 @@ interface ChannelAnalytics {
   totalVideos: number
 }
 
+interface ActiveBroadcast {
+  id: string
+  title: string
+  youtubeUrl?: string
+}
+
 export function Dashboard() {
   const { currentBroadcast, isLive } = useLiveStore()
   const [analytics, setAnalytics] = useState<ChannelAnalytics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [, setError] = useState<string | null>(null)
+  const [activeLive, setActiveLive] = useState<ActiveBroadcast | null>(null)
+  const [showEmbedded, setShowEmbedded] = useState(false)
 
   useEffect(() => {
     fetchAnalytics()
+    checkActiveBroadcasts()
+    // Atualizar a cada 30 segundos
+    const interval = setInterval(checkActiveBroadcasts, 30000)
+    return () => clearInterval(interval)
   }, [])
+
+  const checkActiveBroadcasts = async () => {
+    try {
+      const response = await fetch(API_ENDPOINTS.broadcasts.active, {
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        const broadcasts = await response.json()
+        if (broadcasts.length > 0) {
+          const active = broadcasts[0]
+          setActiveLive({
+            id: active.id,
+            title: active.snippet?.title || 'Live Stream',
+            youtubeUrl: `https://www.youtube.com/watch?v=${active.id}`
+          })
+          setShowEmbedded(true)
+        } else {
+          setActiveLive(null)
+          setShowEmbedded(false)
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao verificar broadcasts ativos:', error)
+    }
+  }
 
   const fetchAnalytics = async () => {
     try {
@@ -61,11 +99,13 @@ export function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Visão geral das suas lives automatizadas</p>
-      </div>
+    <div className="flex gap-4">
+      {/* Main Content */}
+      <div className={`flex-1 space-y-6 transition-all duration-300 ${showEmbedded ? 'mr-0' : ''}`}>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 mt-1">Visão geral das suas lives automatizadas</p>
+        </div>
 
       {/* Status Card */}
       <div className="bg-white rounded-lg shadow p-6">
@@ -143,6 +183,67 @@ export function Dashboard() {
             change="Conecte sua conta do YouTube"
             icon={<Video className="w-6 h-6" />}
           />
+        </div>
+      )}
+      </div>
+
+      {/* Embedded Live Player - Sidebar Retrátil */}
+      {activeLive && (
+        <div className={`transition-all duration-300 ${showEmbedded ? 'w-96' : 'w-12'} bg-white rounded-lg shadow-lg overflow-hidden flex flex-col`}>
+          {/* Toggle Button */}
+          <button
+            onClick={() => setShowEmbedded(!showEmbedded)}
+            className="p-3 bg-red-600 text-white hover:bg-red-700 transition-colors flex items-center justify-center"
+            title={showEmbedded ? 'Ocultar player' : 'Mostrar player'}
+          >
+            {showEmbedded ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+          </button>
+
+          {/* Player Container */}
+          {showEmbedded && (
+            <div className="flex-1 flex flex-col p-4">
+              <div className="mb-3">
+                <h3 className="font-semibold text-gray-900 text-sm mb-1">🔴 AO VIVO</h3>
+                <p className="text-xs text-gray-600 line-clamp-2">{activeLive.title}</p>
+              </div>
+              
+              {/* YouTube Embedded Player */}
+              <div className="aspect-video bg-black rounded-lg overflow-hidden mb-3">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/${activeLive.id}?autoplay=1&mute=1`}
+                  title="Live Stream"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+
+              {/* Live Chat */}
+              <div className="flex-1 bg-gray-50 rounded-lg overflow-hidden">
+                <iframe
+                  src={`https://www.youtube.com/live_chat?v=${activeLive.id}&embed_domain=${window.location.hostname}`}
+                  width="100%"
+                  height="100%"
+                  frameBorder="0"
+                  title="Live Chat"
+                  className="w-full h-full min-h-[400px]"
+                />
+              </div>
+
+              {/* Action Button */}
+              <a
+                href={activeLive.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 w-full bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors text-center"
+              >
+                Abrir no YouTube
+              </a>
+            </div>
+          )}
         </div>
       )}
     </div>

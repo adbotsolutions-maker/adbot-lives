@@ -1,4 +1,4 @@
-import { Play, Square, Radio } from 'lucide-react'
+import { Play, Square, Radio, Calendar, Clock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { API_ENDPOINTS } from '../config/api'
 
@@ -21,6 +21,8 @@ export function LiveControl() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
+  const [scheduledStartTime, setScheduledStartTime] = useState('')
+  const [isScheduled, setIsScheduled] = useState(false)
   
   // Google Drive media
   const [driveVideos, setDriveVideos] = useState<DriveFile[]>([])
@@ -92,6 +94,11 @@ export function LiveControl() {
       alert('Preencha o título e selecione um vídeo')
       return
     }
+
+    if (isScheduled && !scheduledStartTime) {
+      alert('Defina a data e hora de início para agendar a live')
+      return
+    }
     
     setLoading(true)
     try {
@@ -102,6 +109,7 @@ export function LiveControl() {
         body: JSON.stringify({
           title,
           description,
+          scheduledStartTime: isScheduled && scheduledStartTime ? new Date(scheduledStartTime).toISOString() : new Date().toISOString(),
           videoSource: {
             type: 'drive',
             fileId: selectedVideo.id
@@ -127,7 +135,11 @@ export function LiveControl() {
       })
       setIsLive(true)
       
-      alert(`✅ Live criada com sucesso!\n\nURL: ${data.broadcast.youtubeUrl}\n\nA live estará ao vivo em ~10 segundos.`)
+      const message = isScheduled 
+        ? `✅ Live agendada com sucesso!\n\nURL: ${data.broadcast.youtubeUrl}\n\nInício: ${new Date(scheduledStartTime).toLocaleString('pt-BR')}\n\nA live começará automaticamente no horário agendado.`
+        : `✅ Live criada com sucesso!\n\nURL: ${data.broadcast.youtubeUrl}\n\nA live estará ao vivo em ~10 segundos.`
+      
+      alert(message)
       
     } catch (error: any) {
       console.error('Erro ao iniciar live:', error)
@@ -213,6 +225,50 @@ export function LiveControl() {
               />
             </div>
 
+            {/* Agendamento */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Calendar className="w-4 h-4" />
+                  Agendar Live
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsScheduled(!isScheduled)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    isScheduled ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      isScheduled ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+              
+              {isScheduled && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="flex items-center gap-1 text-xs text-gray-600 mb-1">
+                      <Clock className="w-3 h-3" />
+                      Data e Hora de Início
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={scheduledStartTime}
+                      onChange={(e) => setScheduledStartTime(e.target.value)}
+                      min={new Date().toISOString().slice(0, 16)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    ⚠️ A live será criada no YouTube e iniciará automaticamente no horário agendado
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Video Selection from Google Drive */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -263,11 +319,11 @@ export function LiveControl() {
             {/* Start Button */}
             <button
               onClick={handleStart}
-              disabled={!title || !selectedVideo || loading}
+              disabled={!title || !selectedVideo || loading || (isScheduled && !scheduledStartTime)}
               className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <Play className="w-5 h-5" />
-              {loading ? 'Criando Live...' : 'Criar e Iniciar Live'}
+              {isScheduled ? <Calendar className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+              {loading ? 'Criando Live...' : (isScheduled ? 'Agendar Live' : 'Criar e Iniciar Live')}
             </button>
           </div>
         ) : (
