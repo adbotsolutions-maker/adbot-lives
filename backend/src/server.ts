@@ -29,20 +29,22 @@ const io = new Server(server, {
 });
 
 // Trust proxy - MUST come before session middleware
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 1);
-}
+app.set('trust proxy', 1);
 
 // Session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'adbot-secret',
-  resave: false,
+  secret: process.env.SESSION_SECRET || 'adbot-secret-change-in-production',
+  resave: true, // Force session save even if not modified
   saveUninitialized: false,
+  rolling: true, // Reset cookie maxAge on every request
+  proxy: true, // Important for Render/proxy environments
+  name: 'adbot.sid', // Custom session cookie name
   cookie: { 
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: true, // Always true since we're using HTTPS
+    sameSite: 'none', // Required for cross-origin cookies
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours default
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days default
+    path: '/'
   }
 }));
 
