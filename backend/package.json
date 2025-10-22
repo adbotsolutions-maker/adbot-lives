@@ -19,6 +19,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-session": "^1.18.2",
     "googleapis": "^164.1.0",
     "nodemon": "^3.1.10",
     "socket.io": "^4.8.1",
@@ -28,7 +29,6 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
-    "@types/ssh2": "^1.15.5",
-    "express-session": "^1.18.2"
+    "@types/ssh2": "^1.15.5"
   }
 }
