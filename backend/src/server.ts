@@ -160,7 +160,7 @@ app.get('/api/analytics/channel', requireAuth, async (req, res) => {
     const completedBroadcasts = await youtubeService.getCompletedBroadcastsCount();
 
     // Buscar vídeos recentes se tiver playlist de uploads
-    let recentVideos = [];
+    let recentVideos: any[] = [];
     if (channelStats.uploadsPlaylistId) {
       recentVideos = await youtubeService.getChannelVideos(channelStats.uploadsPlaylistId, 5);
     }

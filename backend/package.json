@@ -27,6 +27,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/ssh2": "^1.15.5",
     "express-session": "^1.18.2"
   }
