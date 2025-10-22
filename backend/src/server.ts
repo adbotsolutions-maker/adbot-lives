@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import { YouTubeService } from './services/YouTubeService.js';
+import { YouTubeAnalyticsService } from './services/YouTubeAnalyticsService.js';
 import { VPSService } from './services/VPSService.js';
 import { GoogleDriveService } from './services/GoogleDriveService.js';
 import { requireAuth, checkCredentials } from './middleware/auth.js';
@@ -66,6 +67,7 @@ app.use(express.json());
 
 // Services
 const youtubeService = new YouTubeService();
+const analyticsService = new YouTubeAnalyticsService();
 let vpsService: VPSService | null = null;
 let activeBroadcastId: string | null = null;
 let currentFFmpegPid: string | null = null;
@@ -253,6 +255,158 @@ app.get('/api/analytics/channel', requireAuth, async (req, res) => {
       totalVideos: channelStats.statistics.videoCount,
       recentVideos
     });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== YOUTUBE ANALYTICS ROUTES =====
+
+app.get('/api/analytics/metrics', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    analyticsService.setCredentials(tokens);
+
+    const { startDate, endDate } = req.query;
+    
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const metrics = await analyticsService.getChannelMetrics(
+      startDate as string,
+      endDate as string
+    );
+
+    res.json(metrics);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/analytics/daily', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    analyticsService.setCredentials(tokens);
+
+    const { startDate, endDate } = req.query;
+    
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const dailyMetrics = await analyticsService.getDailyMetrics(
+      startDate as string,
+      endDate as string
+    );
+
+    res.json(dailyMetrics);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/analytics/top-videos', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    analyticsService.setCredentials(tokens);
+    youtubeService.setCredentials(tokens);
+
+    const { startDate, endDate, maxResults } = req.query;
+    
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const topVideos = await analyticsService.getTopVideos(
+      startDate as string,
+      endDate as string,
+      maxResults ? parseInt(maxResults as string) : 10
+    );
+
+    // Buscar informações detalhadas dos vídeos
+    const videoIds = topVideos.map(v => v.videoId);
+    const videosData = await youtubeService['youtube'].videos.list({
+      part: ['snippet'],
+      id: videoIds
+    });
+
+    const videosWithDetails = topVideos.map(video => {
+      const videoData = videosData.data.items?.find((v: any) => v.id === video.videoId);
+      return {
+        ...video,
+        title: videoData?.snippet?.title,
+        publishedAt: videoData?.snippet?.publishedAt,
+        thumbnail: videoData?.snippet?.thumbnails?.default?.url
+      };
+    });
+
+    res.json(videosWithDetails);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/analytics/traffic-sources', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    analyticsService.setCredentials(tokens);
+
+    const { startDate, endDate } = req.query;
+    
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const trafficSources = await analyticsService.getTrafficSources(
+      startDate as string,
+      endDate as string
+    );
+
+    res.json(trafficSources);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/analytics/countries', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    analyticsService.setCredentials(tokens);
+
+    const { startDate, endDate, maxResults } = req.query;
+    
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'startDate and endDate are required' });
+    }
+
+    const countries = await analyticsService.getMetricsByCountry(
+      startDate as string,
+      endDate as string,
+      maxResults ? parseInt(maxResults as string) : 10
+    );
+
+    res.json(countries);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

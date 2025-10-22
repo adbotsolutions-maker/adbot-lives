@@ -20,5 +20,10 @@ export const API_ENDPOINTS = {
   },
   analytics: {
     channel: `${API_BASE_URL}/api/analytics/channel`,
+    metrics: `${API_BASE_URL}/api/analytics/metrics`,
+    daily: `${API_BASE_URL}/api/analytics/daily`,
+    topVideos: `${API_BASE_URL}/api/analytics/top-videos`,
+    trafficSources: `${API_BASE_URL}/api/analytics/traffic-sources`,
+    countries: `${API_BASE_URL}/api/analytics/countries`,
   },
 }

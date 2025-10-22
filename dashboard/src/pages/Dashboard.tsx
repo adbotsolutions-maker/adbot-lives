@@ -67,14 +67,6 @@ export function Dashboard() {
         <p className="text-gray-600 mt-1">Visão geral das suas lives automatizadas</p>
       </div>
 
-      {error && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-yellow-800 text-sm">
-            ⚠️ {error} - Conecte sua conta do YouTube nas configurações
-          </p>
-        </div>
-      )}
-
       {/* Status Card */}
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-between">
