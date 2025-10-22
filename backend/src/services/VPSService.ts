@@ -14,7 +14,10 @@ export interface FFmpegConfig {
   streamKey: string;
   videoPath: string;
   audioPath?: string; // Caminho para arquivo de áudio (música de fundo)
-  loop?: boolean;
+  loop?: boolean; // Deprecated - usar loopType
+  loopType?: 'infinite' | 'duration' | 'count'; // Tipo de loop
+  loopDuration?: number; // Duração em segundos (para loopType: 'duration')
+  loopCount?: number; // Número de repetições (para loopType: 'count')
 }
 
 export class VPSService extends EventEmitter {
@@ -110,7 +113,22 @@ export class VPSService extends EventEmitter {
   async startFFmpegStream(config: FFmpegConfig): Promise<string> {
     try {
       const fullStreamUrl = `${config.streamUrl}/${config.streamKey}`;
-      const loopFlag = config.loop ? '-stream_loop -1' : '';
+      
+      // Determinar tipo de loop
+      let loopType = config.loopType || (config.loop ? 'infinite' : 'infinite');
+      let loopFlag = '';
+      let durationFlag = '';
+
+      if (loopType === 'infinite') {
+        loopFlag = '-stream_loop -1';
+      } else if (loopType === 'count' && config.loopCount) {
+        // -1 significa infinito, então loopCount - 1 (ex: 3 repetições = -stream_loop 2)
+        loopFlag = `-stream_loop ${config.loopCount - 1}`;
+      } else if (loopType === 'duration' && config.loopDuration) {
+        // Loop infinito mas com tempo máximo
+        loopFlag = '-stream_loop -1';
+        durationFlag = `-t ${config.loopDuration}`;
+      }
 
       let ffmpegCommand: string;
 
@@ -125,6 +143,7 @@ export class VPSService extends EventEmitter {
             -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
             -pix_fmt yuv420p -g 50 \\
             -c:a aac -b:a 128k -ar 44100 \\
+            ${durationFlag} \\
             -f flv "${fullStreamUrl}" \\
             > /tmp/ffmpeg_stream.log 2>&1 &
           echo $!
@@ -137,6 +156,7 @@ export class VPSService extends EventEmitter {
             -re -i "${config.videoPath}" \\
             -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
             -pix_fmt yuv420p -g 50 -c:a aac -b:a 128k -ar 44100 \\
+            ${durationFlag} \\
             -f flv "${fullStreamUrl}" \\
             > /tmp/ffmpeg_stream.log 2>&1 &
           echo $!
@@ -144,6 +164,7 @@ export class VPSService extends EventEmitter {
       }
 
       console.log('🎥 Iniciando FFmpeg no VPS...');
+      console.log('Loop config:', { loopType, loopFlag, durationFlag });
       const pid = await this.executeCommand(ffmpegCommand);
 
       console.log(`✅ FFmpeg iniciado com PID: ${pid.trim()}`);

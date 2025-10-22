@@ -24,6 +24,11 @@ export function LiveControl() {
   const [scheduledStartTime, setScheduledStartTime] = useState('')
   const [isScheduled, setIsScheduled] = useState(false)
   
+  // Loop configuration
+  const [loopType, setLoopType] = useState<'infinite' | 'duration' | 'count'>('infinite')
+  const [loopDuration, setLoopDuration] = useState<number>(7200) // 2 horas em segundos
+  const [loopCount, setLoopCount] = useState<number>(3)
+  
   // Google Drive media
   const [driveVideos, setDriveVideos] = useState<DriveFile[]>([])
   const [driveAudio, setDriveAudio] = useState<DriveFile[]>([])
@@ -117,7 +122,10 @@ export function LiveControl() {
           audioSource: selectedAudio ? {
             type: 'drive',
             fileId: selectedAudio.id
-          } : null
+          } : null,
+          loopType,
+          loopDuration: loopType === 'duration' ? loopDuration : undefined,
+          loopCount: loopType === 'count' ? loopCount : undefined
         })
       })
 
@@ -314,6 +322,102 @@ export function LiveControl() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Loop Configuration */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                🔁 Configuração de Loop
+              </label>
+              
+              <div className="space-y-3">
+                {/* Loop Type Selection */}
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setLoopType('infinite')}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      loopType === 'infinite'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    ♾️ Infinito
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLoopType('duration')}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      loopType === 'duration'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    ⏱️ Duração
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLoopType('count')}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      loopType === 'count'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    🔢 Repetições
+                  </button>
+                </div>
+
+                {/* Duration Input */}
+                {loopType === 'duration' && (
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Duração da Live (horas)
+                    </label>
+                    <input
+                      type="number"
+                      min="0.5"
+                      max="24"
+                      step="0.5"
+                      value={loopDuration / 3600}
+                      onChange={(e) => setLoopDuration(parseFloat(e.target.value) * 3600)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      A live será encerrada automaticamente após {(loopDuration / 3600).toFixed(1)} hora(s)
+                    </p>
+                  </div>
+                )}
+
+                {/* Count Input */}
+                {loopType === 'count' && (
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <label className="block text-xs text-gray-600 mb-1">
+                      Número de Repetições
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={loopCount}
+                      onChange={(e) => setLoopCount(parseInt(e.target.value) || 1)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      O vídeo será repetido {loopCount} vez(es) e a live será encerrada
+                    </p>
+                  </div>
+                )}
+
+                {/* Infinite Info */}
+                {loopType === 'infinite' && (
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <p className="text-xs text-gray-600">
+                      ♾️ O vídeo ficará em loop infinito até você parar manualmente a live
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Start Button */}
