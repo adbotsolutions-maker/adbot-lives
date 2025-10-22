@@ -46,7 +46,7 @@ app.use(session({
   }
 }));
 
-// CORS configuration
+// CORS configuration - MUST be before any routes
 app.use(cors({
   origin: (origin, callback) => {
     console.log('🌐 CORS check for origin:', origin);
@@ -60,9 +60,15 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['set-cookie']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  exposedHeaders: ['set-cookie'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
+
 app.use(express.json());
 
 // Services
