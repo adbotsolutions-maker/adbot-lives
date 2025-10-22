@@ -27,6 +27,11 @@ const io = new Server(server, {
   }
 });
 
+// Trust proxy - MUST come before session middleware
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 // Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'adbot-secret',
@@ -35,19 +40,27 @@ app.use(session({
   cookie: { 
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    httpOnly: true
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours default
   }
 }));
 
+// CORS configuration
 app.use(cors({
   origin: (origin, callback) => {
+    console.log('🌐 CORS check for origin:', origin);
+    // Allow requests with no origin (like mobile apps, Postman, or same-origin)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.log('❌ Origin not allowed:', origin);
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['set-cookie']
 }));
 app.use(express.json());
 
@@ -79,7 +92,12 @@ app.get('/health', (req, res) => {
 // Login com usuário/senha
 app.post('/api/auth/login', (req, res) => {
   try {
-    console.log('📝 Login attempt received:', { username: req.body.username, hasPassword: !!req.body.password });
+    console.log('📝 Login attempt received:', { 
+      username: req.body.username, 
+      hasPassword: !!req.body.password,
+      sessionID: req.sessionID,
+      headers: req.headers
+    });
     const { username, password, rememberMe } = req.body;
 
     if (!username || !password) {
@@ -92,7 +110,6 @@ app.post('/api/auth/login', (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    console.log('✅ Login successful for user:', username);
     // Salvar na sessão
     (req.session as any).authenticated = true;
     (req.session as any).username = username;
@@ -100,16 +117,29 @@ app.post('/api/auth/login', (req, res) => {
     // Se "Lembrar de mim", sessão dura 30 dias, senão expira ao fechar o navegador
     if (rememberMe) {
       req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 dias
-    } else {
-      req.session.cookie.expires = undefined; // Sessão do navegador
     }
 
-    res.json({ 
-      success: true, 
-      message: 'Login successful',
-      username 
+    // Save session explicitly before sending response
+    req.session.save((err) => {
+      if (err) {
+        console.error('❌ Session save error:', err);
+        return res.status(500).json({ error: 'Failed to save session' });
+      }
+      
+      console.log('✅ Login successful for user:', username, {
+        sessionID: req.sessionID,
+        authenticated: (req.session as any).authenticated,
+        cookieMaxAge: req.session.cookie.maxAge
+      });
+      
+      res.json({ 
+        success: true, 
+        message: 'Login successful',
+        username 
+      });
     });
   } catch (error: any) {
+    console.error('❌ Login error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -128,6 +158,14 @@ app.post('/api/auth/logout', (req, res) => {
 app.get('/api/auth/check', (req, res) => {
   const authenticated = (req.session as any)?.authenticated || false;
   const username = (req.session as any)?.username;
+  
+  console.log('🔍 Auth check:', {
+    sessionID: req.sessionID,
+    authenticated,
+    username,
+    sessionData: req.session,
+    cookies: req.headers.cookie
+  });
   
   res.json({ 
     authenticated,
