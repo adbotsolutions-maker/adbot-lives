@@ -57,6 +57,23 @@ let vpsService: VPSService | null = null;
 let activeBroadcastId: string | null = null;
 let currentFFmpegPid: string | null = null;
 
+// ===== HEALTH CHECK / PING ROUTE =====
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'AdBot Lives API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
+
 // ===== ADMIN LOGIN ROUTES =====
 
 // Login com usuário/senha
