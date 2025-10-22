@@ -23,7 +23,7 @@ export function Dashboard() {
   const { currentBroadcast, isLive } = useLiveStore()
   const [analytics, setAnalytics] = useState<ChannelAnalytics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAnalytics()
@@ -76,9 +76,8 @@ export function Dashboard() {
               {isLive ? 'Transmitindo agora' : 'Nenhuma transmissão ativa'}
             </p>
           </div>
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            isLive ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
-          }`}>
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${isLive ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+            }`}>
             <RadioIcon className={`w-5 h-5 ${isLive ? 'animate-pulse' : ''}`} />
             <span className="font-medium">{isLive ? 'AO VIVO' : 'Offline'}</span>
           </div>
@@ -105,42 +104,42 @@ export function Dashboard() {
         </div>
       ) : analytics ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard 
-            title="Total Lives" 
-            value={analytics.totalLives.toString()} 
+          <StatsCard
+            title="Total Lives"
+            value={analytics.totalLives.toString()}
             change={analytics.totalLives > 0 ? `${analytics.totalLives} transmissões` : 'Nenhuma ainda'}
             icon={<RadioIcon className="w-6 h-6" />}
           />
-          <StatsCard 
-            title="Total Views" 
-            value={formatNumber(analytics.totalViews)} 
+          <StatsCard
+            title="Total Views"
+            value={formatNumber(analytics.totalViews)}
             change={`${analytics.totalSubscribers} inscritos`}
             icon={<Users className="w-6 h-6" />}
           />
-          <StatsCard 
-            title="Total de Vídeos" 
-            value={analytics.totalVideos.toString()} 
+          <StatsCard
+            title="Total de Vídeos"
+            value={analytics.totalVideos.toString()}
             change={`${analytics.channel.title}`}
             icon={<Video className="w-6 h-6" />}
           />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatsCard 
-            title="Total Lives" 
-            value="--" 
+          <StatsCard
+            title="Total Lives"
+            value="--"
             change="Conecte sua conta do YouTube"
             icon={<RadioIcon className="w-6 h-6" />}
           />
-          <StatsCard 
-            title="Total Views" 
-            value="--" 
+          <StatsCard
+            title="Total Views"
+            value="--"
             change="Conecte sua conta do YouTube"
             icon={<Users className="w-6 h-6" />}
           />
-          <StatsCard 
-            title="Total de Vídeos" 
-            value="--" 
+          <StatsCard
+            title="Total de Vídeos"
+            value="--"
             change="Conecte sua conta do YouTube"
             icon={<Video className="w-6 h-6" />}
           />
