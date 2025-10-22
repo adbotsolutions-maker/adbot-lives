@@ -85,6 +85,7 @@ app.get('/', (req, res) => {
   res.status(200).json({ 
     status: 'ok', 
     message: 'AdBot Lives API is running',
+    version: '1.0.1',
     timestamp: new Date().toISOString()
   });
 });
