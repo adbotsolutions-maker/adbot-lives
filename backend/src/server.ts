@@ -421,7 +421,7 @@ app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
 
     youtubeService.setCredentials(tokens);
 
-    const { title, description, videoSource, audioSource, loopType, loopDuration, loopCount } = req.body;
+    const { title, description, videoSource, audioSource, loopType, loopDuration, loopCount, removeAudio } = req.body;
 
     // 1. Criar broadcast no YouTube
     console.log('📺 Criando broadcast no YouTube...');
@@ -484,6 +484,7 @@ app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
       streamKey: broadcast.streamKey || '',
       videoPath,
       audioPath, // Passa o caminho do áudio se existir
+      removeAudio: removeAudio || false, // Remove áudio se marcado
       loopType: loopType || 'infinite',
       loopDuration: loopDuration ? parseInt(loopDuration) : undefined,
       loopCount: loopCount ? parseInt(loopCount) : undefined

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
+
         :root {
             --sage: #9CAF88;
             --charcoal: #2D3436;
@@ -16,37 +17,37 @@
             --warm-white: #F7F3E9;
             --accent-gold: #F39C12;
         }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, var(--warm-white) 0%, #E8E5DA 100%);
             color: var(--charcoal);
             line-height: 1.6;
         }
-        
+
         .card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
-        
+
         .template-card {
             transition: all 0.3s ease;
         }
-        
+
         .template-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
-        
+
         .gradient-text {
             background: linear-gradient(135deg, var(--sage), var(--muted-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
         .btn-copy {
             background: linear-gradient(135deg, var(--sage), var(--muted-blue));
             color: white;
@@ -57,12 +58,12 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
+
         .btn-copy:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
-        
+
         .code-block {
             background: #1a1a1a;
             color: #f8f8f2;
@@ -72,16 +73,17 @@
             font-size: 14px;
             overflow-x: auto;
         }
-        
+
         .checklist-item {
             transition: all 0.3s ease;
         }
-        
+
         .checklist-item:hover {
             background: rgba(156, 175, 136, 0.1);
         }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <header class="py-8 px-4 bg-white bg-opacity-50">
@@ -100,13 +102,16 @@
                 <a href="#templates" class="px-4 py-2 bg-sage text-white rounded-lg hover:bg-opacity-80 transition-all">
                     <i class="fas fa-file-alt mr-2"></i>Templates
                 </a>
-                <a href="#checklists" class="px-4 py-2 bg-muted-blue text-white rounded-lg hover:bg-opacity-80 transition-all">
+                <a href="#checklists"
+                    class="px-4 py-2 bg-muted-blue text-white rounded-lg hover:bg-opacity-80 transition-all">
                     <i class="fas fa-list-check mr-2"></i>Checklists
                 </a>
-                <a href="#code" class="px-4 py-2 bg-accent-gold text-white rounded-lg hover:bg-opacity-80 transition-all">
+                <a href="#code"
+                    class="px-4 py-2 bg-accent-gold text-white rounded-lg hover:bg-opacity-80 transition-all">
                     <i class="fas fa-code mr-2"></i>Códigos
                 </a>
-                <a href="index.html" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-opacity-80 transition-all">
+                <a href="index.html"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-opacity-80 transition-all">
                     <i class="fas fa-arrow-left mr-2"></i>Voltar ao Relatório
                 </a>
             </div>
@@ -129,22 +134,27 @@
                     <div class="space-y-4">
                         <div class="p-3 bg-gray-50 rounded-lg">
                             <div class="font-semibold mb-2">Nicho: Finanças/Cripto</div>
-                            <div class="text-sm text-gray-600 mb-2">Bitcoin AO VIVO: Análise em Tempo Real [Preço 2025]</div>
-                            <button class="btn-copy" onclick="copyToClipboard('Bitcoin AO VIVO: Análise em Tempo Real [Preço 2025]')">
+                            <div class="text-sm text-gray-600 mb-2">Bitcoin AO VIVO: Análise em Tempo Real [Preço 2025]
+                            </div>
+                            <button class="btn-copy"
+                                onclick="copyToClipboard('Bitcoin AO VIVO: Análise em Tempo Real [Preço 2025]')">
                                 <i class="fas fa-copy mr-1"></i>Copiar
                             </button>
                         </div>
                         <div class="p-3 bg-gray-50 rounded-lg">
                             <div class="font-semibold mb-2">Nicho: Educação</div>
-                            <div class="text-sm text-gray-600 mb-2">ENEM 2025: Dicas AO VIVO para Aprovação Imediata</div>
-                            <button class="btn-copy" onclick="copyToClipboard('ENEM 2025: Dicas AO VIVO para Aprovação Imediata')">
+                            <div class="text-sm text-gray-600 mb-2">ENEM 2025: Dicas AO VIVO para Aprovação Imediata
+                            </div>
+                            <button class="btn-copy"
+                                onclick="copyToClipboard('ENEM 2025: Dicas AO VIVO para Aprovação Imediata')">
                                 <i class="fas fa-copy mr-1"></i>Copiar
                             </button>
                         </div>
                         <div class="p-3 bg-gray-50 rounded-lg">
                             <div class="font-semibold mb-2">Nicho: Música Lofi</div>
                             <div class="text-sm text-gray-600 mb-2">Lofi Study Session 📚 Música para Focar 24/7</div>
-                            <button class="btn-copy" onclick="copyToClipboard('Lofi Study Session 📚 Música para Focar 24/7')">
+                            <button class="btn-copy"
+                                onclick="copyToClipboard('Lofi Study Session 📚 Música para Focar 24/7')">
                                 <i class="fas fa-copy mr-1"></i>Copiar
                             </button>
                         </div>
@@ -186,7 +196,8 @@ Acompanhe a análise técnica e fundamental do Bitcoin em tempo real!
 • Sempre faça sua própria pesquisa
 
 #Bitcoin #Crypto #LiveTrading #Brasil #2025</textarea>
-                            <button class="btn-copy mt-2" onclick="copyToClipboard(document.querySelector('textarea').value)">
+                            <button class="btn-copy mt-2"
+                                onclick="copyToClipboard(document.querySelector('textarea').value)">
                                 <i class="fas fa-copy mr-1"></i>Copiar Template
                             </button>
                         </div>
@@ -199,34 +210,38 @@ Acompanhe a análise técnica e fundamental do Bitcoin em tempo real!
                 <h3 class="text-2xl font-bold mb-6 text-center gradient-text">
                     <i class="fas fa-hashtag mr-2"></i>Pacotes de Hashtags por Nicho
                 </h3>
-                
+
                 <div class="grid md:grid-cols-3 gap-6">
                     <div class="p-4 bg-gray-50 rounded-lg">
                         <h4 class="font-bold text-sage mb-3">Finanças/Cripto</h4>
                         <div class="text-sm text-gray-600 mb-3">
-                            #Bitcoin #Crypto #LiveTrading #Brasil #2025 #Finanças #Investimentos #Criptomoedas #Blockchain #AnáliseTécnica
+                            #Bitcoin #Crypto #LiveTrading #Brasil #2025 #Finanças #Investimentos #Criptomoedas
+                            #Blockchain #AnáliseTécnica
                         </div>
-                        <button class="btn-copy" onclick="copyToClipboard('#Bitcoin #Crypto #LiveTrading #Brasil #2025 #Finanças #Investimentos #Criptomoedas #Blockchain #AnáliseTécnica')">
+                        <button class="btn-copy"
+                            onclick="copyToClipboard('#Bitcoin #Crypto #LiveTrading #Brasil #2025 #Finanças #Investimentos #Criptomoedas #Blockchain #AnáliseTécnica')">
                             <i class="fas fa-copy mr-1"></i>Copiar
                         </button>
                     </div>
-                    
+
                     <div class="p-4 bg-gray-50 rounded-lg">
                         <h4 class="font-bold text-muted-blue mb-3">Educação</h4>
                         <div class="text-sm text-gray-600 mb-3">
                             #Educação #ENEM #Vestibular #Estudos #Live #Brasil #2025 #Aprendizado #Cursos #AulaAoVivo
                         </div>
-                        <button class="btn-copy" onclick="copyToClipboard('#Educação #ENEM #Vestibular #Estudos #Live #Brasil #2025 #Aprendizado #Cursos #AulaAoVivo')">
+                        <button class="btn-copy"
+                            onclick="copyToClipboard('#Educação #ENEM #Vestibular #Estudos #Live #Brasil #2025 #Aprendizado #Cursos #AulaAoVivo')">
                             <i class="fas fa-copy mr-1"></i>Copiar
                         </button>
                     </div>
-                    
+
                     <div class="p-4 bg-gray-50 rounded-lg">
                         <h4 class="font-bold text-accent-gold mb-3">Música Lofi</h4>
                         <div class="text-sm text-gray-600 mb-3">
                             #Lofi #StudyMusic #Relax #Chill #24/7 #Live #Brasil #Música #Focus #Jazz
                         </div>
-                        <button class="btn-copy" onclick="copyToClipboard('#Lofi #StudyMusic #Relax #Chill #24/7 #Live #Brasil #Música #Focus #Jazz')">
+                        <button class="btn-copy"
+                            onclick="copyToClipboard('#Lofi #StudyMusic #Relax #Chill #24/7 #Live #Brasil #Música #Focus #Jazz')">
                             <i class="fas fa-copy mr-1"></i>Copiar
                         </button>
                     </div>
@@ -331,7 +346,7 @@ Acompanhe a análise técnica e fundamental do Bitcoin em tempo real!
                 <h3 class="text-2xl font-bold mb-6 text-center gradient-text">
                     <i class="fas fa-chart-line mr-2"></i>Otimização Contínua
                 </h3>
-                
+
                 <div class="grid md:grid-cols-3 gap-6">
                     <div>
                         <h4 class="font-bold text-sage mb-3">Semana 1</h4>
@@ -354,7 +369,7 @@ Acompanhe a análise técnica e fundamental do Bitcoin em tempo real!
                             </div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <h4 class="font-bold text-muted-blue mb-3">Mês 1</h4>
                         <div class="space-y-2 text-sm">
@@ -376,7 +391,7 @@ Acompanhe a análise técnica e fundamental do Bitcoin em tempo real!
                             </div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <h4 class="font-bold text-accent-gold mb-3">Mês 3</h4>
                         <div class="space-y-2 text-sm">
@@ -419,7 +434,7 @@ Acompanhe a análise técnica e fundamental do Bitcoin em tempo real!
                     Script Python para controle automatizado do OBS Studio via WebSocket.
                 </p>
                 <div class="code-block">
-<pre>import obswebsocket
+                    <pre>import obswebsocket
 from obswebsocket import obsws, requests
 import time
 import schedule
@@ -463,7 +478,8 @@ while True:
     time.sleep(60)</pre>
                 </div>
                 <div class="mt-4 flex gap-2">
-                    <button class="btn-copy" onclick="copyToClipboard(document.querySelector('.code-block pre').textContent)">
+                    <button class="btn-copy"
+                        onclick="copyToClipboard(document.querySelector('.code-block pre').textContent)">
                         <i class="fas fa-copy mr-1"></i>Copiar Código
                     </button>
                     <span class="text-xs text-gray-500">Requer: pip install obswebsocket-py</span>
@@ -479,7 +495,7 @@ while True:
                     Script para gerenciar lives automaticamente via YouTube API v3.
                 </p>
                 <div class="code-block">
-<pre>from googleapiclient.discovery import build
+                    <pre>from googleapiclient.discovery import build
 from google.oauth2 import service_account
 import datetime
 import pytz
@@ -570,7 +586,8 @@ print(f"Stream Key: {ingestion_info['streamName']}")
 print(f"RTMP URL: {ingestion_info['ingestionAddress']}")</pre>
                 </div>
                 <div class="mt-4 flex gap-2">
-                    <button class="btn-copy" onclick="copyToClipboard(document.querySelectorAll('.code-block pre')[1].textContent)">
+                    <button class="btn-copy"
+                        onclick="copyToClipboard(document.querySelectorAll('.code-block pre')[1].textContent)">
                         <i class="fas fa-copy mr-1"></i>Copiar Código
                     </button>
                     <span class="text-xs text-gray-500">Requer: Google Cloud API credentials</span>
@@ -592,18 +609,18 @@ print(f"RTMP URL: {ingestion_info['ingestionAddress']}")</pre>
 
     <script>
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
+            navigator.clipboard.writeText(text).then(function () {
                 // Show success message
                 const button = event.target.closest('button');
                 const originalText = button.innerHTML;
                 button.innerHTML = '<i class="fas fa-check mr-1"></i>Copiado!';
                 button.style.background = '#4CAF50';
-                
+
                 setTimeout(() => {
                     button.innerHTML = originalText;
                     button.style.background = '';
                 }, 2000);
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.error('Erro ao copiar: ', err);
             });
         }
@@ -624,16 +641,17 @@ print(f"RTMP URL: {ingestion_info['ingestionAddress']}")</pre>
 
         // Checklist progress
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
+            checkbox.addEventListener('change', function () {
                 const section = this.closest('.card');
                 const total = section.querySelectorAll('input[type="checkbox"]').length;
                 const checked = section.querySelectorAll('input[type="checkbox"]:checked').length;
                 const percentage = (checked / total) * 100;
-                
+
                 // Update progress (you can add a progress bar here)
                 console.log(`Progresso: ${percentage.toFixed(1)}%`);
             });
         });
     </script>
 </body>
+
 </html>

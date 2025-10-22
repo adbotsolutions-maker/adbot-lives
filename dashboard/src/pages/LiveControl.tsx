@@ -29,6 +29,9 @@ export function LiveControl() {
   const [loopDuration, setLoopDuration] = useState<number>(7200) // 2 horas em segundos
   const [loopCount, setLoopCount] = useState<number>(3)
   
+  // Audio configuration
+  const [removeAudio, setRemoveAudio] = useState(false)
+  
   // Google Drive media
   const [driveVideos, setDriveVideos] = useState<DriveFile[]>([])
   const [driveAudio, setDriveAudio] = useState<DriveFile[]>([])
@@ -125,7 +128,8 @@ export function LiveControl() {
           } : null,
           loopType,
           loopDuration: loopType === 'duration' ? loopDuration : undefined,
-          loopCount: loopType === 'count' ? loopCount : undefined
+          loopCount: loopType === 'count' ? loopCount : undefined,
+          removeAudio
         })
       })
 
@@ -275,6 +279,22 @@ export function LiveControl() {
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Remove Audio Checkbox */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={removeAudio}
+                  onChange={(e) => setRemoveAudio(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-sm font-medium text-gray-700">🔇 Remover áudio</span>
+              </label>
+              <p className="text-xs text-gray-500 mt-1 ml-6">
+                O vídeo será transmitido sem áudio (100% mudo)
+              </p>
             </div>
 
             {/* Video Selection from Google Drive */}

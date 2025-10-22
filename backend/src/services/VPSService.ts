@@ -14,6 +14,7 @@ export interface FFmpegConfig {
   streamKey: string;
   videoPath: string;
   audioPath?: string; // Caminho para arquivo de áudio (música de fundo)
+  removeAudio?: boolean; // Remove todo o áudio do vídeo (mudo)
   loop?: boolean; // Deprecated - usar loopType
   loopType?: 'infinite' | 'duration' | 'count'; // Tipo de loop
   loopDuration?: number; // Duração em segundos (para loopType: 'duration')
@@ -132,7 +133,20 @@ export class VPSService extends EventEmitter {
 
       let ffmpegCommand: string;
 
-      if (config.audioPath) {
+      if (config.removeAudio) {
+        // Comando com vídeo MUDO (sem áudio)
+        ffmpegCommand = `
+          nohup ffmpeg \\
+            ${loopFlag} \\
+            -re -i "${config.videoPath}" \\
+            -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k \\
+            -pix_fmt yuv420p -g 50 -an \\
+            ${durationFlag} \\
+            -f flv "${fullStreamUrl}" \\
+            > /tmp/ffmpeg_stream.log 2>&1 &
+          echo $!
+        `.trim().replace(/\s+/g, ' ');
+      } else if (config.audioPath) {
         // Comando com mixagem de áudio (vídeo + música de fundo)
         ffmpegCommand = `
           nohup ffmpeg \\
