@@ -13,9 +13,16 @@ dotenv.config();
 
 const app = express();
 const server = createServer(app);
+
+// Allowed origins
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://adbot-lives.vercel.app'
+];
+
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: allowedOrigins,
     credentials: true
   }
 });
@@ -25,11 +32,21 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'adbot-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // true em produção com HTTPS
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    httpOnly: true
+  }
 }));
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
@@ -126,7 +143,12 @@ app.get('/api/auth/callback', async (req, res) => {
           <h1>✅ Autenticação concluída!</h1>
           <p>Você pode fechar esta janela e voltar ao dashboard.</p>
           <script>
-            window.opener?.postMessage({ type: 'youtube-auth-success' }, 'http://localhost:5173');
+            const origins = ['http://localhost:5173', 'https://adbot-lives.vercel.app'];
+            origins.forEach(origin => {
+              try {
+                window.opener?.postMessage({ type: 'youtube-auth-success' }, origin);
+              } catch (e) {}
+            });
             setTimeout(() => window.close(), 2000);
           </script>
         </body>

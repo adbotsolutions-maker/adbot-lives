@@ -1,5 +1,6 @@
 import { Play, Square, Radio } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { API_ENDPOINTS } from '../config/api'
 
 interface DriveFile {
   id: string
@@ -39,7 +40,7 @@ export function LiveControl() {
 
   const checkActiveBroadcasts = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/broadcasts/active', {
+      const response = await fetch(API_ENDPOINTS.broadcasts.active, {
         credentials: 'include'
       })
 
@@ -66,8 +67,8 @@ export function LiveControl() {
       setLoadingMedia(true)
       
       const [videosRes, audioRes] = await Promise.all([
-        fetch('http://localhost:3001/api/drive/videos', { credentials: 'include' }),
-        fetch('http://localhost:3001/api/drive/audio', { credentials: 'include' })
+        fetch(API_ENDPOINTS.drive.videos, { credentials: 'include' }),
+        fetch(API_ENDPOINTS.drive.audio, { credentials: 'include' })
       ])
 
       if (videosRes.ok) {
@@ -94,7 +95,7 @@ export function LiveControl() {
     
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:3001/api/live/create-and-start', {
+      const response = await fetch(API_ENDPOINTS.live.createAndStart, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -141,7 +142,7 @@ export function LiveControl() {
 
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:3001/api/broadcasts/stop', {
+      const response = await fetch(API_ENDPOINTS.broadcasts.stop, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

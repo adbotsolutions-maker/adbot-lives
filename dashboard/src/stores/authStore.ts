@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { API_ENDPOINTS } from '../config/api'
 
 interface AuthState {
   isAuthenticated: boolean
@@ -16,7 +17,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (username: string, password: string, rememberMe?: boolean) => {
     console.log('🔐 Attempting login...', { username, rememberMe });
-    const response = await fetch('http://localhost:3001/api/auth/login', {
+    const response = await fetch(API_ENDPOINTS.auth.login, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -37,7 +38,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await fetch('http://localhost:3001/api/auth/logout', {
+    await fetch(API_ENDPOINTS.auth.logout, {
       method: 'POST',
       credentials: 'include'
     })
@@ -46,7 +47,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   checkAuth: async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/auth/check', {
+      const response = await fetch(API_ENDPOINTS.auth.check, {
         credentials: 'include'
       })
       const data = await response.json()

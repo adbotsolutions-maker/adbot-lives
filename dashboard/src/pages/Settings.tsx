@@ -1,5 +1,6 @@
 import { Server, Key, Bell } from 'lucide-react'
 import { useState } from 'react'
+import { API_ENDPOINTS } from '../config/api'
 
 export function Settings() {
   const [vpsHost, setVpsHost] = useState('72.61.179.97')
@@ -9,7 +10,7 @@ export function Settings() {
   const handleYouTubeConnect = async () => {
     try {
       setIsConnecting(true)
-      const response = await fetch('http://localhost:3001/api/auth/youtube', {
+      const response = await fetch(API_ENDPOINTS.auth.youtube, {
         credentials: 'include'
       })
       

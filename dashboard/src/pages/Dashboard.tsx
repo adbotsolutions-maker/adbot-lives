@@ -1,6 +1,7 @@
 import { useLiveStore } from '../stores/liveStore'
 import { Radio as RadioIcon, Users, Video } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { API_ENDPOINTS } from '../config/api'
 
 interface ChannelAnalytics {
   channel: {
@@ -31,7 +32,7 @@ export function Dashboard() {
   const fetchAnalytics = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('http://localhost:3001/api/analytics/channel', {
+      const response = await fetch(API_ENDPOINTS.analytics.channel, {
         credentials: 'include'
       })
 
