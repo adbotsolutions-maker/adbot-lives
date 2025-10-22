@@ -1,0 +1,585 @@
+import express from 'express';
+import cors from 'cors';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import dotenv from 'dotenv';
+import session from 'express-session';
+import { YouTubeService } from './services/YouTubeService.js';
+import { VPSService } from './services/VPSService.js';
+import { GoogleDriveService } from './services/GoogleDriveService.js';
+import { requireAuth, checkCredentials } from './middleware/auth.js';
+
+dotenv.config();
+
+const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:5173',
+    credentials: true
+  }
+});
+
+// Session middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'adbot-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // true em produção com HTTPS
+}));
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+app.use(express.json());
+
+// Services
+const youtubeService = new YouTubeService();
+let vpsService: VPSService | null = null;
+let activeBroadcastId: string | null = null;
+let currentFFmpegPid: string | null = null;
+
+// ===== ADMIN LOGIN ROUTES =====
+
+// Login com usuário/senha
+app.post('/api/auth/login', (req, res) => {
+  try {
+    console.log('📝 Login attempt received:', { username: req.body.username, hasPassword: !!req.body.password });
+    const { username, password, rememberMe } = req.body;
+
+    if (!username || !password) {
+      console.log('❌ Missing credentials');
+      return res.status(400).json({ error: 'Username and password required' });
+    }
+
+    if (!checkCredentials(username, password)) {
+      console.log('❌ Invalid credentials for user:', username);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    console.log('✅ Login successful for user:', username);
+    // Salvar na sessão
+    (req.session as any).authenticated = true;
+    (req.session as any).username = username;
+    
+    // Se "Lembrar de mim", sessão dura 30 dias, senão expira ao fechar o navegador
+    if (rememberMe) {
+      req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 dias
+    } else {
+      req.session.cookie.expires = undefined; // Sessão do navegador
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Login successful',
+      username 
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Logout
+app.post('/api/auth/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+    res.json({ success: true, message: 'Logged out' });
+  });
+});
+
+// Verificar se está logado
+app.get('/api/auth/check', (req, res) => {
+  const authenticated = (req.session as any)?.authenticated || false;
+  const username = (req.session as any)?.username;
+  
+  res.json({ 
+    authenticated,
+    username: authenticated ? username : null
+  });
+});
+
+// ===== YOUTUBE OAUTH ROUTES =====
+
+app.get('/api/auth/youtube', requireAuth, (req, res) => {
+  const authUrl = youtubeService.getAuthUrl();
+  res.json({ authUrl });
+});
+
+app.get('/api/auth/callback', async (req, res) => {
+  try {
+    const { code } = req.query;
+    if (!code || typeof code !== 'string') {
+      return res.status(400).send('Missing authorization code');
+    }
+
+    const tokens = await youtubeService.getTokensFromCode(code);
+    
+    // Salvar tokens na sessão
+    (req.session as any).youtubeTokens = tokens;
+    
+    res.send(`
+      <html>
+        <body>
+          <h1>✅ Autenticação concluída!</h1>
+          <p>Você pode fechar esta janela e voltar ao dashboard.</p>
+          <script>
+            window.opener?.postMessage({ type: 'youtube-auth-success' }, 'http://localhost:5173');
+            setTimeout(() => window.close(), 2000);
+          </script>
+        </body>
+      </html>
+    `);
+  } catch (error: any) {
+    res.status(500).send(`Error: ${error.message}`);
+  }
+});
+
+app.get('/api/auth/status', (req, res) => {
+  const tokens = (req.session as any).youtubeTokens;
+  res.json({ 
+    authenticated: !!tokens,
+    hasRefreshToken: !!tokens?.refresh_token 
+  });
+});
+
+// ===== BROADCAST ROUTES ===== (Todas protegidas)
+
+app.get('/api/analytics/channel', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    youtubeService.setCredentials(tokens);
+
+    const channelStats = await youtubeService.getChannelStatistics();
+    const completedBroadcasts = await youtubeService.getCompletedBroadcastsCount();
+
+    // Buscar vídeos recentes se tiver playlist de uploads
+    let recentVideos = [];
+    if (channelStats.uploadsPlaylistId) {
+      recentVideos = await youtubeService.getChannelVideos(channelStats.uploadsPlaylistId, 5);
+    }
+
+    // Calcular total de views de todos os vídeos recentes
+    const totalRecentViews = recentVideos.reduce((sum, video) => sum + video.statistics.viewCount, 0);
+
+    res.json({
+      channel: channelStats,
+      totalLives: completedBroadcasts.totalLives,
+      totalViews: channelStats.statistics.viewCount,
+      totalSubscribers: channelStats.statistics.subscriberCount,
+      totalVideos: channelStats.statistics.videoCount,
+      recentVideos
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    youtubeService.setCredentials(tokens);
+
+    const { title, description, videoSource, audioSource } = req.body;
+
+    // 1. Criar broadcast no YouTube
+    console.log('📺 Criando broadcast no YouTube...');
+    const broadcast = await youtubeService.createBroadcast(
+      title || 'Live Stream',
+      description || 'Automated live stream',
+      new Date().toISOString()
+    );
+
+    // 2. Conectar ao VPS se ainda não conectado
+    if (!vpsService || !vpsService.getConnectionStatus()) {
+      console.log('🔌 Conectando ao VPS...');
+      vpsService = new VPSService({
+        host: process.env.VPS_HOST || '72.61.179.97',
+        port: parseInt(process.env.VPS_PORT || '22'),
+        username: process.env.VPS_USER || 'root',
+        password: process.env.VPS_PASSWORD
+      });
+      await vpsService.connect();
+    }
+
+    // 3. Baixar mídia do Google Drive para o VPS (se necessário)
+    let videoPath = '/root/videos/default.mp4';
+    let audioPath: string | undefined;
+    
+    if (videoSource?.type === 'drive' && videoSource?.fileId) {
+      console.log('📥 Baixando vídeo do Google Drive...');
+      const driveService = new GoogleDriveService(youtubeService['oauth2Client']);
+      const fileMetadata = await driveService.getFileMetadata(videoSource.fileId);
+      videoPath = `/root/videos/${fileMetadata.name}`;
+      
+      // Download direto no VPS via comando wget com link compartilhado
+      await vpsService.executeCommand(`mkdir -p /root/videos`);
+      await vpsService.executeCommand(
+        `wget -O "${videoPath}" "https://drive.google.com/uc?export=download&id=${videoSource.fileId}"`
+      );
+    }
+
+    // Baixar áudio se fornecido
+    if (audioSource?.type === 'drive' && audioSource?.fileId) {
+      console.log('🎵 Baixando áudio do Google Drive...');
+      const driveService = new GoogleDriveService(youtubeService['oauth2Client']);
+      const audioMetadata = await driveService.getFileMetadata(audioSource.fileId);
+      audioPath = `/root/audio/${audioMetadata.name}`;
+      
+      await vpsService.executeCommand(`mkdir -p /root/audio`);
+      await vpsService.executeCommand(
+        `wget -O "${audioPath}" "https://drive.google.com/uc?export=download&id=${audioSource.fileId}"`
+      );
+    }
+
+    // 4. Transitar broadcast para "testing"
+    console.log('🔄 Transicionando para testing...');
+    await youtubeService.transitionBroadcast(broadcast.broadcastId!, 'testing');
+
+    // 5. Iniciar FFmpeg stream no VPS
+    console.log('🎥 Iniciando streaming FFmpeg...');
+    currentFFmpegPid = await vpsService.startFFmpegStream({
+      streamUrl: broadcast.rtmpUrl || 'rtmp://a.rtmp.youtube.com/live2',
+      streamKey: broadcast.streamKey || '',
+      videoPath,
+      audioPath, // Passa o caminho do áudio se existir
+      loop: true
+    });
+
+    // 6. Aguardar e transitar para "live"
+    setTimeout(async () => {
+      try {
+        console.log('📡 Transicionando para LIVE...');
+        await youtubeService.transitionBroadcast(broadcast.broadcastId!, 'live');
+        activeBroadcastId = broadcast.broadcastId!;
+        io.emit('broadcast:live', { broadcastId: broadcast.broadcastId });
+      } catch (error) {
+        console.error('Erro ao transitar para live:', error);
+      }
+    }, 10000); // 10 segundos para o stream estabilizar
+
+    res.json({
+      success: true,
+      broadcast: {
+        id: broadcast.broadcastId,
+        title: broadcast.title,
+        youtubeUrl: broadcast.youtubeUrl,
+        streamKey: broadcast.streamKey
+      }
+    });
+  } catch (error: any) {
+    console.error('❌ Erro no fluxo de live:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/broadcasts/create', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    youtubeService.setCredentials(tokens);
+
+    const { title, description, scheduledStartTime } = req.body;
+
+    const broadcast = await youtubeService.createBroadcast(
+      title || 'Live Stream',
+      description || 'Automated live stream',
+      scheduledStartTime || new Date().toISOString()
+    );
+
+    res.json({
+      success: true,
+      broadcast
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/broadcasts/start', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    youtubeService.setCredentials(tokens);
+
+    const { broadcastId, videoPath } = req.body;
+
+    // 1. Transitar broadcast para "testing"
+    await youtubeService.transitionBroadcast(broadcastId, 'testing');
+
+    // 2. Obter informações do stream
+    const broadcasts = await youtubeService.listActiveBroadcasts();
+    const broadcast = broadcasts.find(b => b.id === broadcastId);
+    
+    if (!broadcast) {
+      throw new Error('Broadcast not found');
+    }
+
+    // 3. Conectar SSH e iniciar FFmpeg
+    if (!vpsService) {
+      vpsService = new VPSService({
+        host: process.env.VPS_HOST || '72.61.179.97',
+        port: parseInt(process.env.VPS_PORT || '22'),
+        username: process.env.VPS_USER || 'root',
+        password: process.env.VPS_PASSWORD
+      });
+      await vpsService.connect();
+    }
+
+    // Extrair stream key e RTMP URL do broadcast criado
+    const streamKey = broadcast.contentDetails?.monitorStream?.embedHtml || '';
+    const rtmpUrl = 'rtmp://a.rtmp.youtube.com/live2';
+
+    currentFFmpegPid = await vpsService.startFFmpegStream({
+      streamUrl: rtmpUrl,
+      streamKey,
+      videoPath: videoPath || '/root/videos/default.mp4',
+      loop: true
+    });
+
+    // 4. Aguardar e transitar para "live"
+    setTimeout(async () => {
+      await youtubeService.transitionBroadcast(broadcastId, 'live');
+      activeBroadcastId = broadcastId;
+      io.emit('broadcast:live', { broadcastId });
+    }, 5000);
+
+    res.json({
+      success: true,
+      broadcastId,
+      message: 'Live starting...'
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/broadcasts/stop', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with YouTube' });
+    }
+
+    youtubeService.setCredentials(tokens);
+
+    const { broadcastId } = req.body;
+
+    // 1. Parar FFmpeg no VPS
+    if (vpsService && currentFFmpegPid) {
+      await vpsService.stopFFmpegStream(currentFFmpegPid);
+      currentFFmpegPid = null;
+    }
+
+    // 2. Transitar broadcast para "complete"
+    await youtubeService.transitionBroadcast(broadcastId, 'complete');
+
+    activeBroadcastId = null;
+    io.emit('broadcast:ended', { broadcastId });
+
+    res.json({
+      success: true,
+      message: 'Live stopped'
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/broadcasts/metrics/:broadcastId', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    youtubeService.setCredentials(tokens);
+
+    const metrics = await youtubeService.getLiveMetrics(req.params.broadcastId);
+    res.json(metrics);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/broadcasts/active', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    youtubeService.setCredentials(tokens);
+
+    const broadcasts = await youtubeService.listActiveBroadcasts();
+    res.json(broadcasts);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== GOOGLE DRIVE ROUTES =====
+
+app.get('/api/drive/videos', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with Google' });
+    }
+
+    youtubeService.setCredentials(tokens);
+    const driveService = new GoogleDriveService(youtubeService['oauth2Client']);
+    
+    const videos = await driveService.listVideos(20);
+    res.json({ videos });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/drive/audio', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with Google' });
+    }
+
+    youtubeService.setCredentials(tokens);
+    const driveService = new GoogleDriveService(youtubeService['oauth2Client']);
+    
+    const audio = await driveService.listAudio(20);
+    res.json({ audio });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== SSH ROUTES ===== (Todas protegidas)
+
+app.post('/api/ssh/connect', requireAuth, async (req, res) => {
+  try {
+    const { host, port, username, password } = req.body;
+
+    vpsService = new VPSService({
+      host: host || process.env.VPS_HOST!,
+      port: port || parseInt(process.env.VPS_PORT || '22'),
+      username: username || process.env.VPS_USER!,
+      password: password || process.env.VPS_PASSWORD
+    });
+
+    await vpsService.connect();
+
+    res.json({
+      success: true,
+      message: 'VPS connected via SSH'
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/ssh/execute', requireAuth, async (req, res) => {
+  try {
+    if (!vpsService || !vpsService.getConnectionStatus()) {
+      return res.status(400).json({ error: 'VPS not connected' });
+    }
+
+    const { command } = req.body;
+    const output = await vpsService.executeCommand(command);
+
+    res.json({
+      success: true,
+      output
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/ssh/status', requireAuth, (req, res) => {
+  res.json({
+    connected: vpsService?.getConnectionStatus() || false
+  });
+});
+
+// ===== HEALTH CHECK =====
+
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'AdBot Lives API is running',
+    vpsConnected: vpsService?.getConnectionStatus() || false,
+    activeBroadcast: activeBroadcastId,
+    ffmpegRunning: !!currentFFmpegPid
+  });
+});
+
+// ===== WEBSOCKET =====
+
+io.on('connection', (socket) => {
+  console.log('Cliente conectado:', socket.id);
+
+  socket.on('terminal:create', async () => {
+    try {
+      if (!vpsService || !vpsService.getConnectionStatus()) {
+        socket.emit('terminal:error', { message: 'VPS not connected' });
+        return;
+      }
+
+      vpsService.createInteractiveShell(
+        (data) => socket.emit('terminal:data', data),
+        () => socket.emit('terminal:close')
+      );
+
+      vpsService.once('shell-ready', (sendCommand) => {
+        socket.on('terminal:input', (command: string) => {
+          sendCommand(command);
+        });
+      });
+
+    } catch (error: any) {
+      socket.emit('terminal:error', { message: error.message });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado:', socket.id);
+  });
+});
+
+// Metrics real-time updates (se houver broadcast ativo)
+setInterval(async () => {
+  if (activeBroadcastId) {
+    try {
+      const metrics = await youtubeService.getLiveMetrics(activeBroadcastId);
+      io.emit('metrics:update', metrics);
+    } catch (error) {
+      console.error('Error fetching metrics:', error);
+    }
+  }
+}, 10000); // A cada 10 segundos
+
+const PORT = process.env.PORT || 3001;
+
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📊 WebSocket ready on ws://localhost:${PORT}`);
+  console.log(`🔑 YouTube OAuth: ${process.env.YOUTUBE_CLIENT_ID ? '✅' : '❌'}`);
+  console.log(`📡 VPS Host: ${process.env.VPS_HOST}`);
+});

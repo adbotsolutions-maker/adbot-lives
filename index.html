@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Mercado: Lives Automatizadas no YouTube Brasil 2025</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --sage: #9CAF88;
+            --charcoal: #2D3436;
+            --muted-blue: #74B9FF;
+            --warm-white: #F7F3E9;
+            --accent-gold: #F39C12;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--warm-white) 0%, #E8E5DA 100%);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--sage) 0%, var(--muted-blue) 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,0 1000,300 1000,1000 0,700"/></svg>');
+            background-size: cover;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--sage), var(--muted-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, var(--sage), var(--muted-blue), var(--sage));
+            margin: 3rem 0;
+        }
+        
+        .data-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .data-table th {
+            background: var(--sage);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(156, 175, 136, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--sage), var(--muted-blue));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section py-20 px-4 relative z-10">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center">
+                <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+                    Lives Automatizadas
+                    <span class="block text-4xl md:text-6xl opacity-90">no YouTube Brasil</span>
+                </h1>
+                <p class="text-xl md:text-2xl mb-8 opacity-90 max-w-3xl mx-auto">
+                    Análise estratégica completa do mercado de lives automatizadas no YouTube brasileiro para 2025-2026
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 text-sm font-medium">
+                    <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
+                        <i class="fas fa-chart-line mr-2"></i>14.83B Horas Assistidas Q2 2025
+                    </span>
+                    <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
+                        <i class="fas fa-users mr-2"></i>144M Usuários Brasil
+                    </span>
+                    <span class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
+                        <i class="fas fa-rocket mr-2"></i>23% CAGR Crescimento
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Executive Summary -->
+    <section class="py-16 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <div class="card rounded-2xl p-8 mb-12">
+                <h2 class="text-3xl font-bold mb-6 gradient-text">
+                    <i class="fas fa-star mr-3"></i>Resumo Executivo
+                </h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-sage">Oportunidade Principal</h3>
+                        <p class="text-gray-700 mb-4">
+                            O mercado de lives automatizadas no YouTube Brasil representa uma oportunidade de <strong>$50-100 milhões</strong> 
+                            em receita anual, com crescimento de 23% ao ano. A demanda por conteúdo contínuo e interativo 
+                            está impulsionando a adoção de soluções automatizadas.
+                        </p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-center"><i class="fas fa-check text-sage mr-2"></i>CPM médio Brasil: $1-20 por nicho</li>
+                            <li class="flex items-center"><i class="fas fa-check text-sage mr-2"></i>Viabilidade técnica comprovada</li>
+                            <li class="flex items-center"><i class="fas fa-check text-sage mr-2"></i>Menor competição em nichos específicos</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-muted-blue">Recomendações Estratégicas</h3>
+                        <ol class="space-y-3 text-sm">
+                            <li class="flex items-start">
+                                <span class="bg-sage text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">1</span>
+                                <span><strong>Finanças/Cripto:</strong> Nicho com maior ROI e automação viável</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-muted-blue text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">2</span>
+                                <span><strong>Educação 24/7:</strong> Conteúdo evergreen de alta retenção</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="bg-accent-gold text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3 mt-0.5">3</span>
+                                <span><strong>Lofi/Música:</strong> Modelo comprovado de sucesso contínuo</span>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Analysis -->
+    <section class="py-16 px-4 bg-white bg-opacity-50">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">
+                <i class="fas fa-chart-bar mr-3"></i>Análise de Mercado
+            </h2>
+            
+            <!-- Key Metrics -->
+            <div class="grid md:grid-cols-4 gap-6 mb-12">
+                <div class="metric-card card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-black text-sage mb-2">14.83B</div>
+                    <div class="text-sm text-gray-600">Horas Assistidas Q2 2025</div>
+                    <div class="text-xs text-gray-500 mt-1">YouTube Live Global</div>
+                </div>
+                <div class="metric-card card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-black text-muted-blue mb-2">50%+</div>
+                    <div class="text-sm text-gray-600">Market Share</div>
+                    <div class="text-xs text-gray-500 mt-1">Liderança no Livestreaming</div>
+                </div>
+                <div class="metric-card card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-black text-accent-gold mb-2">144M</div>
+                    <div class="text-sm text-gray-600">Usuários Brasil</div>
+                    <div class="text-xs text-gray-500 mt-1">3º Maior Mercado</div>
+                </div>
+                <div class="metric-card card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-black text-sage mb-2">$7.32</div>
+                    <div class="text-sm text-gray-600">CPM Médio Brasil</div>
+                    <div class="text-xs text-gray-500 mt-1">Potencial de Receita</div>
+                </div>
+            </div>
+
+            <!-- Market Trends Chart -->
+            <div class="chart-container mb-12">
+                <h3 class="text-2xl font-bold mb-6 text-center">Crescimento do Mercado Live Streaming Brasil</h3>
+                <div id="marketGrowthChart" style="height: 400px;"></div>
+            </div>
+
+            <!-- Audience Behavior -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-semibold mb-4">
+                        <i class="fas fa-clock text-sage mr-2"></i>Horários de Pico de Audiência
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">Segunda-feira</span>
+                            <span class="text-sage font-semibold">14h - 16h</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">Terça-feira</span>
+                            <span class="text-sage font-semibold">12h - 15h</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">Sexta-feira</span>
+                            <span class="text-sage font-semibold">12h - 15h</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">Sábado</span>
+                            <span class="text-sage font-semibold">9h - 11h</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-semibold mb-4">
+                        <i class="fas fa-users text-muted-blue mr-2"></i>Demografia da Audiência
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">18-34 anos</span>
+                            <div class="flex items-center">
+                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-2">
+                                    <div class="bg-sage h-2 rounded-full" style="width: 84%;"></div>
+                                </div>
+                                <span class="text-sage font-semibold">42%</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">35-54 anos</span>
+                            <div class="flex items-center">
+                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-2">
+                                    <div class="bg-muted-blue h-2 rounded-full" style="width: 76%;"></div>
+                                </div>
+                                <span class="text-muted-blue font-semibold">38%</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">55+ anos</span>
+                            <div class="flex items-center">
+                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-2">
+                                    <div class="bg-accent-gold h-2 rounded-full" style="width: 40%;"></div>
+                                </div>
+                                <span class="text-accent-gold font-semibold">20%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Niche Analysis -->
+    <section class="py-16 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">
+                <i class="fas fa-bullseye mr-3"></i>Análise de Nichos
+            </h2>
+            
+            <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">
+                Análise detalhada dos 10 principais nichos para lives automatizadas, considerando CPM, saturação do mercado, 
+                viabilidade de automação e potencial de monetização.
+            </p>
+
+            <!-- Niche Ranking Table -->
+            <div class="data-table mb-12">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-4 text-left">Ranking</th>
+                            <th class="px-6 py-4 text-left">Nicho</th>
+                            <th class="px-6 py-4 text-center">CPM Brasil</th>
+                            <th class="px-6 py-4 text-center">Saturação</th>
+                            <th class="px-6 py-4 text-center">Automação</th>
+                            <th class="px-6 py-4 text-center">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="px-6 py-4">
+                                <span class="bg-sage text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</span>
+                            </td>
+                            <td class="px-6 py-4 font-semibold">Finanças/Investimentos</td>
+                            <td class="px-6 py-4 text-center font-semibold text-sage">$7-20</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Médio</span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Alta</span>
+                            </td>
+                            <td class="px-6 py-4 text-center font-bold text-sage">9.5</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-6 py-4">
+                                <span class="bg-muted-blue text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">2</span>
+                            </td>
+                            <td class="px-6 py-4 font-semibold">Educação Online</td>
+                            <td class="px-6 py-4 text-center font-semibold text-muted-blue">$6-18</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Médio</span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Muito Alta</span>
+                            </td>
+                            <td class="px-6 py-4 text-center font-bold text-muted-blue">9.0</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-6 py-4">
+                                <span class="bg-accent-gold text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">3</span>
+                            </td>
+                            <td class="px-6 py-4 font-semibold">Música Lofi/Jazz</td>
+                            <td class="px-6 py-4 text-center font-semibold text-accent-gold">$1-3</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Alto</span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Muito Alta</span>
+                            </td>
+                            <td class="px-6 py-4 text-center font-bold text-accent-gold">8.5</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-6 py-4">
+                                <span class="bg-gray-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">4</span>
+                            </td>
+                            <td class="px-6 py-4 font-semibold">Tecnologia</td>
+                            <td class="px-6 py-4 text-center font-semibold">$5-15</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Muito Alto</span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Alta</span>
+                            </td>
+                            <td class="px-6 py-4 text-center font-bold">8.0</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-6 py-4">
+                                <span class="bg-gray-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">5</span>
+                            </td>
+                            <td class="px-6 py-4 font-semibold">Saúde/Bem-estar</td>
+                            <td class="px-6 py-4 text-center font-semibold">$5-15</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Médio</span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Alta</span>
+                            </td>
+                            <td class="px-6 py-4 text-center font-bold">7.8</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Top 3 Niches Deep Dive -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card rounded-xl p-6 border-l-4 border-sage">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-sage text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">1</div>
+                        <h3 class="text-lg font-bold">Finanças/Investimentos</h3>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span>CPM Potencial:</span>
+                            <span class="font-semibold text-sage">$7-20</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>ROI Estimado:</span>
+                            <span class="font-semibold text-green-600">300-500%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tempo Payback:</span>
+                            <span class="font-semibold">3-6 meses</span>
+                        </div>
+                        <div class="mt-4 p-3 bg-sage bg-opacity-10 rounded-lg">
+                            <strong>Conteúdo Ideal:</strong> Cotações em tempo real, análise de mercado, criptomoedas, notícias econômicas
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card rounded-xl p-6 border-l-4 border-muted-blue">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-muted-blue text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">2</div>
+                        <h3 class="text-lg font-bold">Educação Online</h3>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span>CPM Potencial:</span>
+                            <span class="font-semibold text-muted-blue">$6-18</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>ROI Estimado:</span>
+                            <span class="font-semibold text-green-600">250-400%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tempo Payback:</span>
+                            <span class="font-semibold">4-8 meses</span>
+                        </div>
+                        <div class="mt-4 p-3 bg-muted-blue bg-opacity-10 rounded-lg">
+                            <strong>Conteúdo Ideal:</strong> Cursos 24/7, tutoriais interativos, idiomas, preparação para concursos
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card rounded-xl p-6 border-l-4 border-accent-gold">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-accent-gold text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">3</div>
+                        <h3 class="text-lg font-bold">Música Lofi/Jazz</h3>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span>CPM Potencial:</span>
+                            <span class="font-semibold text-accent-gold">$1-3</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>ROI Estimado:</span>
+                            <span class="font-semibold text-green-600">200-350%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tempo Payback:</span>
+                            <span class="font-semibold">6-12 meses</span>
+                        </div>
+                        <div class="mt-4 p-3 bg-accent-gold bg-opacity-10 rounded-lg">
+                            <strong>Conteúdo Ideal:</strong> Playlists 24/7, mixagens automatizadas, estudo, relaxamento, trabalho
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Technical Implementation -->
+    <section class="py-16 px-4 bg-white bg-opacity-50">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">
+                <i class="fas fa-cogs mr-3"></i>Implementação Técnica
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-2xl font-bold mb-6 text-sage">
+                        <i class="fas fa-tools mr-2"></i>Stack Tecnológico
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fas fa-play-circle text-sage text-xl mr-3"></i>
+                            <div>
+                                <div class="font-semibold">OBS Studio</div>
+                                <div class="text-sm text-gray-600">Streaming principal, gratuito e open-source</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fas fa-code text-muted-blue text-xl mr-3"></i>
+                            <div>
+                                <div class="font-semibold">YouTube Live API</div>
+                                <div class="text-sm text-gray-600">Gerenciamento automatizado de lives</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fas fa-robot text-accent-gold text-xl mr-3"></i>
+                            <div>
+                                <div class="font-semibold">IA/Automação</div>
+                                <div class="text-sm text-gray-600">Chat bots, moderação, conteúdo dinâmico</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <i class="fas fa-chart-line text-sage text-xl mr-3"></i>
+                            <div>
+                                <div class="font-semibold">Analytics</div>
+                                <div class="text-sm text-gray-600">Monitoramento em tempo real</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-2xl font-bold mb-6 text-muted-blue">
+                        <i class="fas fa-list-check mr-2"></i>Checklist Técnico
+                    </h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-sage" checked>
+                            <span>Configurar OBS Studio com cenas automáticas</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-sage" checked>
+                            <span>Implementar YouTube Live API</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span>Desenvolver sistema de chat bot</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span>Configurar backup/redundância</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span>Implementar analytics em tempo real</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span>Testar estabilidade 24/7</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span>Configurar moderação automática</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEO Optimization -->
+            <div class="card rounded-xl p-6">
+                <h3 class="text-2xl font-bold mb-6 text-center gradient-text">
+                    <i class="fas fa-search mr-2"></i>Otimização SEO para Lives 2025
+                </h3>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div>
+                        <h4 class="font-bold text-sage mb-3">Títulos de Alto CTR</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="p-2 bg-gray-50 rounded text-xs">
+                                <strong>Formato:</strong><br>
+                                [Palavra-chave] + [Benefício] + [Data]
+                            </div>
+                            <div class="p-2 bg-gray-50 rounded text-xs">
+                                <strong>Exemplo:</strong><br>
+                                "Bitcoin AO VIVO: Análise 24/7 [2025]"
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-muted-blue mb-3">Descrições Otimizadas</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="p-2 bg-gray-50 rounded text-xs">
+                                <strong>Primeiras 100 palavras:</strong><br>
+                                Hook + palavras-chave principais
+                            </div>
+                            <div class="p-2 bg-gray-50 rounded text-xs">
+                                <strong>Corpo:</strong><br>
+                                Conteúdo + timestamps + links
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-accent-gold mb-3">Tags & Hashtags</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="p-2 bg-gray-50 rounded text-xs">
+                                <strong>Tags:</strong><br>
+                                8-12 tags (primárias + secundárias)
+                            </div>
+                            <div class="p-2 bg-gray-50 rounded text-xs">
+                                <strong>Hashtags:</strong><br>
+                                3-5 hashtags relevantes
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Implementation Roadmap -->
+    <section class="py-16 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">
+                <i class="fas fa-route mr-3"></i>Roadmap de Implementação
+            </h2>
+
+            <div class="relative">
+                <!-- Timeline -->
+                <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-sage to-muted-blue"></div>
+                
+                <!-- Week 1-2 -->
+                <div class="relative flex items-center mb-8">
+                    <div class="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-sage rounded-full border-4 border-white"></div>
+                    <div class="w-1/2 pr-8">
+                        <div class="card rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-sage mb-2">Semana 1-2: Pesquisa e Setup</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center"><i class="fas fa-check text-sage mr-2"></i>Análise detalhada do nicho escolhido</li>
+                                <li class="flex items-center"><i class="fas fa-check text-sage mr-2"></i>Configuração da infraestrutura técnica</li>
+                                <li class="flex items-center"><i class="fas fa-check text-sage mr-2"></i>Pesquisa de palavras-chave e concorrência</li>
+                                <li class="flex items-center"><i class="fas fa-check text-sage mr-2"></i>Desenvolvimento de templates visuais</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-8"></div>
+                </div>
+
+                <!-- Week 3-4 -->
+                <div class="relative flex items-center mb-8">
+                    <div class="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-muted-blue rounded-full border-4 border-white"></div>
+                    <div class="w-1/2 pr-8"></div>
+                    <div class="w-1/2 pl-8">
+                        <div class="card rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-muted-blue mb-2">Semana 3-4: Desenvolvimento</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center"><i class="fas fa-cog text-muted-blue mr-2"></i>Implementação da automação</li>
+                                <li class="flex items-center"><i class="fas fa-cog text-muted-blue mr-2"></i>Configuração de chat bots</li>
+                                <li class="flex items-center"><i class="fas fa-cog text-muted-blue mr-2"></i>Testes técnicos e ajustes</li>
+                                <li class="flex items-center"><i class="fas fa-cog text-muted-blue mr-2"></i>Criação de conteúdo inicial</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Month 2 -->
+                <div class="relative flex items-center mb-8">
+                    <div class="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-accent-gold rounded-full border-4 border-white"></div>
+                    <div class="w-1/2 pr-8">
+                        <div class="card rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-accent-gold mb-2">Mês 2: Lançamento</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center"><i class="fas fa-rocket text-accent-gold mr-2"></i>Lançamento das primeiras lives</li>
+                                <li class="flex items-center"><i class="fas fa-rocket text-accent-gold mr-2"></i>Monitoramento de performance</li>
+                                <li class="flex items-center"><i class="fas fa-rocket text-accent-gold mr-2"></i>Ajustes baseados em dados</li>
+                                <li class="flex items-center"><i class="fas fa-rocket text-accent-gold mr-2"></i>Otimização contínua</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="w-1/2 pl-8"></div>
+                </div>
+
+                <!-- Month 3 -->
+                <div class="relative flex items-center">
+                    <div class="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-sage rounded-full border-4 border-white"></div>
+                    <div class="w-1/2 pr-8"></div>
+                    <div class="w-1/2 pl-8">
+                        <div class="card rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-sage mb-2">Mês 3: Escala</h3>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center"><i class="fas fa-chart-line text-sage mr-2"></i>Análise de ROI e métricas</li>
+                                <li class="flex items-center"><i class="fas fa-chart-line text-sage mr-2"></i>Expansão para múltiplos horários</li>
+                                <li class="flex items-center"><i class="fas fa-chart-line text-sage mr-2"></i>Estratégias de crescimento</li>
+                                <li class="flex items-center"><i class="fas fa-chart-line text-sage mr-2"></i>Planejamento de escala</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- Final Recommendations -->
+    <section class="py-16 px-4 bg-white bg-opacity-50">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">
+                <i class="fas fa-lightbulb mr-3"></i>Recomendações Finais
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4 text-sage">
+                        <i class="fas fa-star mr-2"></i>Estratégia Quick Win
+                    </h3>
+                    <p class="text-gray-700 mb-4">
+                        Para resultados rápidos, comece com <strong>Finanças/Criptomoedas</strong>. O nicho oferece o maior ROI, 
+                        tem automação viável e mercado em crescimento no Brasil.
+                    </p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span>Investimento inicial:</span>
+                            <span class="font-semibold">$2,000-5,000</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>ROI esperado:</span>
+                            <span class="font-semibold text-green-600">300-500%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tempo para lucro:</span>
+                            <span class="font-semibold">3-6 meses</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4 text-muted-blue">
+                        <i class="fas fa-shield-alt mr-2"></i>Compliance & Riscos
+                    </h3>
+                    <p class="text-gray-700 mb-4">
+                        Mantenha-se atualizado com as políticas do YouTube. A transparência sobre automação e 
+                        conteúdo autêntico são cruciais para evitar demonetização.
+                    </p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                            <span>Idade mínima: 16 anos para lives</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-robot text-blue-500 mr-2"></i>
+                            <span>Disclosure obrigatório sobre IA</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-copyright text-red-500 mr-2"></i>
+                            <span>Licenciamento de conteúdo essencial</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="text-center mt-12">
+                <div class="card rounded-xl p-8 max-w-4xl mx-auto">
+                    <h3 class="text-2xl font-bold mb-4 gradient-text">Pronto para Começar?</h3>
+                    <p class="text-gray-700 mb-6">
+                        O mercado de lives automatizadas no Brasil está em sua fase inicial de crescimento. 
+                        A janela de oportunidade está aberta para criadores que agirem estrategicamente nos próximos 12-18 meses.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button class="btn-primary">
+                            <i class="fas fa-download mr-2"></i>Baixar Checklist Completo
+                        </button>
+                        <button class="btn-primary">
+                            <i class="fas fa-calculator mr-2"></i>Calcular ROI Estimado
+                        </button>
+                        <button class="btn-primary">
+                            <i class="fas fa-users mr-2"></i>Consultoria Personalizada
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-4 bg-charcoal text-white">
+        <div class="container mx-auto max-w-6xl text-center">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold gradient-text mb-2">Análise de Mercado: Lives Automatizadas YouTube Brasil 2025</h3>
+                <p class="text-gray-400">Dados atualizados em outubro de 2025</p>
+            </div>
+            <div class="border-t border-gray-600 pt-6">
+                <p class="text-gray-400 text-sm">
+                    © 2025 Análise de Mercado YouTube Brasil. Todos os dados são baseados em pesquisas públicas e fontes oficiais.
+                    <br>
+                    <strong>Aviso:</strong> Resultados podem variar. Análise baseada em dados disponíveis até outubro de 2025.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Market Growth Chart
+        const marketData = {
+            x: ['2023', '2024', '2025', '2026', '2027', '2028'],
+            y: [1.8, 2.2, 2.6, 3.2, 4.0, 4.9],
+            type: 'scatter',
+            mode: 'lines+markers',
+            line: {
+                color: '#9CAF88',
+                width: 4
+            },
+            marker: {
+                color: '#74B9FF',
+                size: 10
+            },
+            name: 'Mercado Live Streaming Brasil (Bilhões USD)'
+        };
+
+        const layout = {
+            title: {
+                text: 'Projeção de Crescimento do Mercado',
+                font: { size: 18, color: '#2D3436' }
+            },
+            xaxis: {
+                title: 'Ano',
+                gridcolor: '#E8E5DA'
+            },
+            yaxis: {
+                title: 'Valor de Mercado (Bilhões USD)',
+                gridcolor: '#E8E5DA'
+            },
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Inter, sans-serif' },
+            margin: { t: 60, r: 40, b: 60, l: 80 }
+        };
+
+        Plotly.newPlot('marketGrowthChart', [marketData], layout, {responsive: true});
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add hover effects to metric cards
+        document.querySelectorAll('.metric-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Templates e Checklists - Lives Automatizadas YouTube Brasil</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --sage: #9CAF88;
+            --charcoal: #2D3436;
+            --muted-blue: #74B9FF;
+            --warm-white: #F7F3E9;
+            --accent-gold: #F39C12;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--warm-white) 0%, #E8E5DA 100%);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .template-card {
+            transition: all 0.3s ease;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--sage), var(--muted-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-copy {
+            background: linear-gradient(135deg, var(--sage), var(--muted-blue));
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .code-block {
+            background: #1a1a1a;
+            color: #f8f8f2;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .checklist-item {
+            transition: all 0.3s ease;
+        }
+        
+        .checklist-item:hover {
+            background: rgba(156, 175, 136, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="py-8 px-4 bg-white bg-opacity-50">
+        <div class="container mx-auto max-w-6xl text-center">
+            <h1 class="text-4xl font-black gradient-text mb-2">
+                <i class="fas fa-tools mr-3"></i>Templates e Checklists
+            </h1>
+            <p class="text-gray-600">Recursos práticos para implementação de lives automatizadas no YouTube Brasil</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="py-4 px-4 bg-white bg-opacity-30">
+        <div class="container mx-auto max-w-6xl">
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#templates" class="px-4 py-2 bg-sage text-white rounded-lg hover:bg-opacity-80 transition-all">
+                    <i class="fas fa-file-alt mr-2"></i>Templates
+                </a>
+                <a href="#checklists" class="px-4 py-2 bg-muted-blue text-white rounded-lg hover:bg-opacity-80 transition-all">
+                    <i class="fas fa-list-check mr-2"></i>Checklists
+                </a>
+                <a href="#code" class="px-4 py-2 bg-accent-gold text-white rounded-lg hover:bg-opacity-80 transition-all">
+                    <i class="fas fa-code mr-2"></i>Códigos
+                </a>
+                <a href="index.html" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-opacity-80 transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar ao Relatório
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Templates Section -->
+    <section id="templates" class="py-16 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-3xl font-bold text-center mb-12 gradient-text">
+                <i class="fas fa-file-alt mr-3"></i>Templates Prontos
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-12">
+                <!-- Title Templates -->
+                <div class="template-card card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4 text-sage">
+                        <i class="fas fa-heading mr-2"></i>Templates de Títulos
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <div class="font-semibold mb-2">Nicho: Finanças/Cripto</div>
+                            <div class="text-sm text-gray-600 mb-2">Bitcoin AO VIVO: Análise em Tempo Real [Preço 2025]</div>
+                            <button class="btn-copy" onclick="copyToClipboard('Bitcoin AO VIVO: Análise em Tempo Real [Preço 2025]')">
+                                <i class="fas fa-copy mr-1"></i>Copiar
+                            </button>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <div class="font-semibold mb-2">Nicho: Educação</div>
+                            <div class="text-sm text-gray-600 mb-2">ENEM 2025: Dicas AO VIVO para Aprovação Imediata</div>
+                            <button class="btn-copy" onclick="copyToClipboard('ENEM 2025: Dicas AO VIVO para Aprovação Imediata')">
+                                <i class="fas fa-copy mr-1"></i>Copiar
+                            </button>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <div class="font-semibold mb-2">Nicho: Música Lofi</div>
+                            <div class="text-sm text-gray-600 mb-2">Lofi Study Session 📚 Música para Focar 24/7</div>
+                            <button class="btn-copy" onclick="copyToClipboard('Lofi Study Session 📚 Música para Focar 24/7')">
+                                <i class="fas fa-copy mr-1"></i>Copiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Templates -->
+                <div class="template-card card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4 text-muted-blue">
+                        <i class="fas fa-align-left mr-2"></i>Templates de Descrição
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <div class="font-semibold mb-2">Finanças - Template Completo</div>
+                            <textarea class="w-full h-32 text-xs p-2 border rounded" readonly>📊 ANÁLISE BITCOIN AO VIVO 24/7
+
+Acompanhe a análise técnica e fundamental do Bitcoin em tempo real! 
+
+📈 O QUE VOCÊ ENCONTRA:
+• Preço ao vivo BTC/USD
+• Análise de mercado em tempo real
+• Notícias e atualizações instantâneas
+• Gráficos técnicos interativos
+
+⏰ TIMESTAMPS:
+00:00 - Preço Atual
+05:00 - Análise Técnica
+15:00 - Notícias do Mercado
+30:00 - Previsões e Trends
+
+🔗 LINKS ÚTEIS:
+• Canal de sinais: [link]
+• Ferramentas de trading: [link]
+• Comunidade Telegram: [link]
+
+💡 DICAS:
+• Use esta live para estudos e análises
+• Não constitui recomendação de investimento
+• Sempre faça sua própria pesquisa
+
+#Bitcoin #Crypto #LiveTrading #Brasil #2025</textarea>
+                            <button class="btn-copy mt-2" onclick="copyToClipboard(document.querySelector('textarea').value)">
+                                <i class="fas fa-copy mr-1"></i>Copiar Template
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hashtag Templates -->
+            <div class="card rounded-xl p-6 mb-12">
+                <h3 class="text-2xl font-bold mb-6 text-center gradient-text">
+                    <i class="fas fa-hashtag mr-2"></i>Pacotes de Hashtags por Nicho
+                </h3>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-bold text-sage mb-3">Finanças/Cripto</h4>
+                        <div class="text-sm text-gray-600 mb-3">
+                            #Bitcoin #Crypto #LiveTrading #Brasil #2025 #Finanças #Investimentos #Criptomoedas #Blockchain #AnáliseTécnica
+                        </div>
+                        <button class="btn-copy" onclick="copyToClipboard('#Bitcoin #Crypto #LiveTrading #Brasil #2025 #Finanças #Investimentos #Criptomoedas #Blockchain #AnáliseTécnica')">
+                            <i class="fas fa-copy mr-1"></i>Copiar
+                        </button>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-bold text-muted-blue mb-3">Educação</h4>
+                        <div class="text-sm text-gray-600 mb-3">
+                            #Educação #ENEM #Vestibular #Estudos #Live #Brasil #2025 #Aprendizado #Cursos #AulaAoVivo
+                        </div>
+                        <button class="btn-copy" onclick="copyToClipboard('#Educação #ENEM #Vestibular #Estudos #Live #Brasil #2025 #Aprendizado #Cursos #AulaAoVivo')">
+                            <i class="fas fa-copy mr-1"></i>Copiar
+                        </button>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-bold text-accent-gold mb-3">Música Lofi</h4>
+                        <div class="text-sm text-gray-600 mb-3">
+                            #Lofi #StudyMusic #Relax #Chill #24/7 #Live #Brasil #Música #Focus #Jazz
+                        </div>
+                        <button class="btn-copy" onclick="copyToClipboard('#Lofi #StudyMusic #Relax #Chill #24/7 #Live #Brasil #Música #Focus #Jazz')">
+                            <i class="fas fa-copy mr-1"></i>Copiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Checklists Section -->
+    <section id="checklists" class="py-16 px-4 bg-white bg-opacity-50">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-3xl font-bold text-center mb-12 gradient-text">
+                <i class="fas fa-list-check mr-3"></i>Checklists de Implementação
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Pre-Launch Checklist -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4 text-sage">
+                        <i class="fas fa-rocket mr-2"></i>Checklist Pré-Lançamento
+                    </h3>
+                    <div class="space-y-3">
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span class="text-sm">Pesquisa de mercado e análise de concorrência</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span class="text-sm">Definição do nicho e persona do público</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span class="text-sm">Configuração da conta YouTube para live streaming</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span class="text-sm">Setup do OBS Studio com cenas automáticas</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span class="text-sm">Implementação da YouTube Live API</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span class="text-sm">Desenvolvimento de templates visuais</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span class="text-sm">Configuração de sistema de backup</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-sage">
+                            <span class="text-sm">Testes de estabilidade 24/7</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Launch Checklist -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4 text-muted-blue">
+                        <i class="fas fa-play mr-2"></i>Checklist de Lançamento
+                    </h3>
+                    <div class="space-y-3">
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-muted-blue">
+                            <span class="text-sm">Verificar configurações de stream key e servidor</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-muted-blue">
+                            <span class="text-sm">Testar qualidade de áudio e vídeo</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-muted-blue">
+                            <span class="text-sm">Configurar título otimizado com palavras-chave</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-muted-blue">
+                            <span class="text-sm">Preencher descrição completa com timestamps</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-muted-blue">
+                            <span class="text-sm">Adicionar tags e hashtags relevantes</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-muted-blue">
+                            <span class="text-sm">Configurar thumbnail atrativo</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-muted-blue">
+                            <span class="text-sm">Ativar chat e moderação automática</span>
+                        </label>
+                        <label class="checklist-item flex items-center p-2 rounded cursor-pointer">
+                            <input type="checkbox" class="mr-3 text-muted-blue">
+                            <span class="text-sm">Monitorar métricas iniciais</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post-Launch Optimization -->
+            <div class="card rounded-xl p-6 mt-8">
+                <h3 class="text-2xl font-bold mb-6 text-center gradient-text">
+                    <i class="fas fa-chart-line mr-2"></i>Otimização Contínua
+                </h3>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div>
+                        <h4 class="font-bold text-sage mb-3">Semana 1</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Monitorar audiência inicial</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Ajustar horários de pico</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Analisar retenção de viewers</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Testar diferentes títulos</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-muted-blue mb-3">Mês 1</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Análise de métricas detalhada</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Otimização de SEO</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Ajustes de conteúdo</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Implementar novos recursos</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-accent-gold mb-3">Mês 3</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Análise de ROI</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Planejamento de escala</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Expansão de nichos</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" class="mr-2">
+                                <span>Estratégias de monetização</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Snippets Section -->
+    <section id="code" class="py-16 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-3xl font-bold text-center mb-12 gradient-text">
+                <i class="fas fa-code mr-3"></i>Códigos e Scripts
+            </h2>
+
+            <!-- OBS WebSocket Script -->
+            <div class="card rounded-xl p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4 text-sage">
+                    <i class="fas fa-terminal mr-2"></i>OBS WebSocket Automation
+                </h3>
+                <p class="text-gray-600 mb-4">
+                    Script Python para controle automatizado do OBS Studio via WebSocket.
+                </p>
+                <div class="code-block">
+<pre>import obswebsocket
+from obswebsocket import obsws, requests
+import time
+import schedule
+
+class OBSController:
+    def __init__(self, host="localhost", port=4444, password="your_password"):
+        self.ws = obsws(host, port, password)
+        self.ws.connect()
+    
+    def start_streaming(self):
+        try:
+            self.ws.call(requests.StartStreaming())
+            print("Live iniciada com sucesso!")
+        except Exception as e:
+            print(f"Erro ao iniciar live: {e}")
+    
+    def stop_streaming(self):
+        try:
+            self.ws.call(requests.StopStreaming())
+            print("Live encerrada com sucesso!")
+        except Exception as e:
+            print(f"Erro ao encerrar live: {e}")
+    
+    def switch_scene(self, scene_name):
+        try:
+            self.ws.call(requests.SetCurrentScene(scene_name))
+            print(f"Cena alterada para: {scene_name}")
+        except Exception as e:
+            print(f"Erro ao alterar cena: {e}")
+
+# Uso do script
+obs = OBSController()
+
+# Agendar lives
+schedule.every().day.at("09:00").do(obs.start_streaming)
+schedule.every().day.at("18:00").do(obs.stop_streaming)
+
+# Loop de execução
+while True:
+    schedule.run_pending()
+    time.sleep(60)</pre>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button class="btn-copy" onclick="copyToClipboard(document.querySelector('.code-block pre').textContent)">
+                        <i class="fas fa-copy mr-1"></i>Copiar Código
+                    </button>
+                    <span class="text-xs text-gray-500">Requer: pip install obswebsocket-py</span>
+                </div>
+            </div>
+
+            <!-- YouTube API Script -->
+            <div class="card rounded-xl p-6">
+                <h3 class="text-xl font-bold mb-4 text-muted-blue">
+                    <i class="fas fa-youtube mr-2"></i>YouTube Live API
+                </h3>
+                <p class="text-gray-600 mb-4">
+                    Script para gerenciar lives automaticamente via YouTube API v3.
+                </p>
+                <div class="code-block">
+<pre>from googleapiclient.discovery import build
+from google.oauth2 import service_account
+import datetime
+import pytz
+
+class YouTubeLiveManager:
+    def __init__(self, credentials_file):
+        self.credentials = service_account.Credentials.from_service_account_file(
+            credentials_file,
+            scopes=['https://www.googleapis.com/auth/youtube.force-ssl']
+        )
+        self.youtube = build('youtube', 'v3', credentials=self.credentials)
+    
+    def create_live_broadcast(self, title, description, scheduled_time):
+        broadcast = self.youtube.liveBroadcasts().insert(
+            part="snippet,status,contentDetails",
+            body={
+                "snippet": {
+                    "title": title,
+                    "description": description,
+                    "scheduledStartTime": scheduled_time.isoformat(),
+                    "isDefaultBroadcast": False
+                },
+                "status": {
+                    "privacyStatus": "public",
+                    "selfDeclaredMadeForKids": False
+                },
+                "contentDetails": {
+                    "enableAutoStart": True,
+                    "enableAutoStop": False,
+                    "enableDvr": True,
+                    "enableContentEncryption": True,
+                    "recordFromStart": True,
+                    "startWithSlate": False
+                }
+            }
+        ).execute()
+        
+        return broadcast['id']
+    
+    def bind_stream_to_broadcast(self, broadcast_id, stream_id):
+        bind = self.youtube.liveBroadcasts().bind(
+            part="id,contentDetails",
+            id=broadcast_id,
+            streamId=stream_id
+        ).execute()
+        
+        return bind
+    
+    def create_live_stream(self, title):
+        stream = self.youtube.liveStreams().insert(
+            part="snippet,cdn,contentDetails",
+            body={
+                "snippet": {
+                    "title": title
+                },
+                "cdn": {
+                    "format": "720p",
+                    "ingestionType": "rtmp"
+                },
+                "contentDetails": {
+                    "isReusable": True
+                }
+            }
+        ).execute()
+        
+        return stream['id'], stream['cdn']['ingestionInfo']
+
+# Uso do script
+youtube = YouTubeLiveManager('credentials.json')
+
+# Criar live stream
+stream_id, ingestion_info = youtube.create_live_stream('Bitcoin Live 24/7')
+
+# Criar broadcast
+scheduled_time = datetime.datetime.now(pytz.UTC) + datetime.timedelta(minutes=10)
+broadcast_id = youtube.create_live_broadcast(
+    'Bitcoin AO VIVO: Análise 24/7',
+    'Acompanhe a análise técnica do Bitcoin em tempo real',
+    scheduled_time
+)
+
+# Vincular stream ao broadcast
+youtube.bind_stream_to_broadcast(broadcast_id, stream_id)
+
+print(f"Live criada com sucesso!")
+print(f"Broadcast ID: {broadcast_id}")
+print(f"Stream Key: {ingestion_info['streamName']}")
+print(f"RTMP URL: {ingestion_info['ingestionAddress']}")</pre>
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <button class="btn-copy" onclick="copyToClipboard(document.querySelectorAll('.code-block pre')[1].textContent)">
+                        <i class="fas fa-copy mr-1"></i>Copiar Código
+                    </button>
+                    <span class="text-xs text-gray-500">Requer: Google Cloud API credentials</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4 bg-charcoal text-white">
+        <div class="container mx-auto max-w-6xl text-center">
+            <p class="text-gray-400 text-sm">
+                © 2025 Templates e Checklists - Lives Automatizadas YouTube Brasil
+                <br>
+                Recursos para implementação prática de lives automatizadas
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show success message
+                const button = event.target.closest('button');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check mr-1"></i>Copiado!';
+                button.style.background = '#4CAF50';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Erro ao copiar: ', err);
+            });
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Checklist progress
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const section = this.closest('.card');
+                const total = section.querySelectorAll('input[type="checkbox"]').length;
+                const checked = section.querySelectorAll('input[type="checkbox"]:checked').length;
+                const percentage = (checked / total) * 100;
+                
+                // Update progress (you can add a progress bar here)
+                console.log(`Progresso: ${percentage.toFixed(1)}%`);
+            });
+        });
+    </script>
+</body>
+</html>
