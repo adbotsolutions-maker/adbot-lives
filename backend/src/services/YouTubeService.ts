@@ -364,6 +364,19 @@ export class YouTubeService {
           return true;
         }
 
+        // Stream está pronto e recebendo dados (healthStatus diferente de noData)
+        // YouTube pode deixar em "ready" por vários minutos enquanto recebe dados
+        if (streamStatus === 'ready' && healthStatus && healthStatus !== 'noData') {
+          console.log(`✅ Stream está PRONTO e recebendo dados (healthStatus: ${healthStatus})!`);
+          return true;
+        }
+
+        // Aceitar após muitas tentativas se está em ready (YouTube às vezes não muda para active rapidamente)
+        if (attempt >= 20 && streamStatus === 'ready') {
+          console.log(`⚠️ Stream está em "ready" há ${attempt} tentativas - prosseguindo...`);
+          return true;
+        }
+
         // Stream está em erro
         if (streamStatus === 'error') {
           console.error('❌ Stream entrou em estado de erro');
