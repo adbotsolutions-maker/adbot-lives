@@ -22,7 +22,7 @@ export interface FFmpegConfig {
 }
 
 export class VPSService extends EventEmitter {
-  private client: Client;
+  public client: Client; // Tornado público para permitir acesso ao SFTP
   private config: VPSConfig;
   private isConnected = false;
 

@@ -1,5 +1,7 @@
 import { google, drive_v3 } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
+import { Client } from 'ssh2';
+import { pipeline } from 'stream/promises';
 
 export class GoogleDriveService {
   private oauth2Client: OAuth2Client;
@@ -108,5 +110,89 @@ export class GoogleDriveService {
       console.error('Erro ao buscar arquivos no Drive:', error.message);
       throw new Error(`Google Drive Error: ${error.message}`);
     }
+  }
+
+  /**
+   * Baixa arquivo do Google Drive diretamente para o VPS via SSH
+   * Usa a API do Drive com OAuth para fazer o download correto
+   */
+  async downloadFileToVPS(
+    fileId: string,
+    destinationPath: string,
+    sshClient: Client
+  ): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log(`📥 Iniciando download do arquivo ${fileId} via Google Drive API...`);
+        
+        // Obter metadata do arquivo
+        const metadata = await this.getFileMetadata(fileId);
+        console.log(`📄 Arquivo: ${metadata.name} (${this.formatBytes(parseInt(metadata.size || '0'))})`);
+
+        // Baixar arquivo do Drive como stream
+        const response = await this.drive.files.get(
+          { fileId, alt: 'media' },
+          { responseType: 'stream' }
+        );
+
+        const driveStream = response.data as any;
+
+        // Criar arquivo no VPS via SFTP
+        sshClient.sftp((err, sftp) => {
+          if (err) {
+            console.error('❌ Erro ao criar conexão SFTP:', err);
+            reject(err);
+            return;
+          }
+
+          console.log(`📤 Transferindo para VPS: ${destinationPath}`);
+          
+          const writeStream = sftp.createWriteStream(destinationPath);
+          
+          let bytesDownloaded = 0;
+          const totalBytes = parseInt(metadata.size || '0');
+
+          driveStream.on('data', (chunk: Buffer) => {
+            bytesDownloaded += chunk.length;
+            const progress = totalBytes > 0 
+              ? ((bytesDownloaded / totalBytes) * 100).toFixed(1)
+              : '?';
+            process.stdout.write(`\r📊 Progresso: ${this.formatBytes(bytesDownloaded)}/${this.formatBytes(totalBytes)} (${progress}%)`);
+          });
+
+          driveStream.on('error', (error: Error) => {
+            console.error('\n❌ Erro no stream do Drive:', error);
+            writeStream.end();
+            reject(error);
+          });
+
+          writeStream.on('error', (error: Error) => {
+            console.error('\n❌ Erro ao escrever no VPS:', error);
+            reject(error);
+          });
+
+          writeStream.on('close', () => {
+            console.log('\n✅ Download concluído com sucesso!');
+            resolve();
+          });
+
+          driveStream.pipe(writeStream);
+        });
+      } catch (error: any) {
+        console.error('❌ Erro ao baixar arquivo:', error.message);
+        reject(error);
+      }
+    });
+  }
+
+  /**
+   * Formata bytes em formato legível
+   */
+  private formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
   }
 }

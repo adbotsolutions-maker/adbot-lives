@@ -481,29 +481,46 @@ app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
     let audioPath: string | undefined;
     
     if (videoSource?.type === 'drive' && videoSource?.fileId) {
-      console.log('📥 Baixando vídeo do Google Drive...');
+      console.log('📥 Baixando vídeo do Google Drive via OAuth...');
       const driveService = new GoogleDriveService(youtubeService['oauth2Client']);
       const fileMetadata = await driveService.getFileMetadata(videoSource.fileId);
       videoPath = `/root/videos/${fileMetadata.name}`;
       
-      // Download direto no VPS via comando wget com link compartilhado
+      // Criar diretório no VPS
       await vpsService.executeCommand(`mkdir -p /root/videos`);
-      await vpsService.executeCommand(
-        `wget -O "${videoPath}" "https://drive.google.com/uc?export=download&id=${videoSource.fileId}"`
+      
+      // Baixar usando a API do Drive com OAuth via SFTP
+      await driveService.downloadFileToVPS(
+        videoSource.fileId,
+        videoPath,
+        vpsService.client // Client agora é público
       );
+      
+      // Verificar se o arquivo foi baixado corretamente
+      const fileCheck = await vpsService.executeCommand(`ls -lh "${videoPath}"`);
+      console.log('📊 Arquivo baixado:', fileCheck);
     }
 
     // Baixar áudio se fornecido
     if (audioSource?.type === 'drive' && audioSource?.fileId) {
-      console.log('🎵 Baixando áudio do Google Drive...');
+      console.log('🎵 Baixando áudio do Google Drive via OAuth...');
       const driveService = new GoogleDriveService(youtubeService['oauth2Client']);
       const audioMetadata = await driveService.getFileMetadata(audioSource.fileId);
       audioPath = `/root/audio/${audioMetadata.name}`;
       
+      // Criar diretório no VPS
       await vpsService.executeCommand(`mkdir -p /root/audio`);
-      await vpsService.executeCommand(
-        `wget -O "${audioPath}" "https://drive.google.com/uc?export=download&id=${audioSource.fileId}"`
+      
+      // Baixar usando a API do Drive com OAuth via SFTP
+      await driveService.downloadFileToVPS(
+        audioSource.fileId,
+        audioPath,
+        vpsService.client // Client agora é público
       );
+      
+      // Verificar se o arquivo foi baixado corretamente
+      const fileCheck = await vpsService.executeCommand(`ls -lh "${audioPath}"`);
+      console.log('📊 Arquivo baixado:', fileCheck);
     }
 
     // 4. Iniciar FFmpeg stream no VPS PRIMEIRO
