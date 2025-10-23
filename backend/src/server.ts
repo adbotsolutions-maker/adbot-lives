@@ -31,8 +31,8 @@ const io = new Server(server, {
 // Trust proxy - MUST come before session middleware
 app.set('trust proxy', 1);
 
-// Determine if we're in production (deployment)
-const isProduction = process.env.NODE_ENV === 'production';
+// Determine if we're in production (deployment or HTTPS)
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
 
 // Session middleware
 app.use(session({
@@ -40,11 +40,11 @@ app.use(session({
   resave: false, // Don't save session if unmodified
   saveUninitialized: false, // Don't create session until something stored
   rolling: true, // Reset cookie maxAge on every request
-  proxy: isProduction, // Only trust proxy in production
+  proxy: true, // Always trust proxy since we're behind Render/Vercel
   name: 'adbot.sid', // Custom session cookie name
   cookie: { 
-    secure: isProduction, // Only require HTTPS in production
-    sameSite: isProduction ? 'none' : 'lax', // 'none' for production cross-origin, 'lax' for local
+    secure: true, // Always require HTTPS in production
+    sameSite: 'none', // Required for cross-origin cookies
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days default
     path: '/'
