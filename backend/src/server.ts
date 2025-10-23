@@ -31,20 +31,24 @@ const io = new Server(server, {
 // Trust proxy - MUST come before session middleware
 app.set('trust proxy', 1);
 
+// Determine if we're in production (deployment)
+const isProduction = process.env.NODE_ENV === 'production';
+
 // Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'adbot-secret-change-in-production',
-  resave: true, // Force session save even if not modified
-  saveUninitialized: false,
+  resave: false, // Don't save session if unmodified
+  saveUninitialized: false, // Don't create session until something stored
   rolling: true, // Reset cookie maxAge on every request
-  proxy: true, // Important for Render/proxy environments
+  proxy: isProduction, // Only trust proxy in production
   name: 'adbot.sid', // Custom session cookie name
   cookie: { 
-    secure: true, // Always true since we're using HTTPS
-    sameSite: 'none', // Required for cross-origin cookies
+    secure: isProduction, // Only require HTTPS in production
+    sameSite: isProduction ? 'none' : 'lax', // 'none' for production cross-origin, 'lax' for local
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days default
-    path: '/'
+    path: '/',
+    domain: isProduction ? undefined : 'localhost' // Explicit domain for localhost
   }
 }));
 
@@ -68,10 +72,20 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
-// Handle preflight requests explicitly
-app.options('*', cors());
-
 app.use(express.json());
+
+// Session debugging middleware (optional - can be removed in production)
+app.use((req, res, next) => {
+  console.log('📋 Session Debug:', {
+    path: req.path,
+    method: req.method,
+    sessionID: req.sessionID,
+    authenticated: (req.session as any)?.authenticated,
+    username: (req.session as any)?.username,
+    cookie: req.headers.cookie
+  });
+  next();
+});
 
 // Services
 const youtubeService = new YouTubeService();

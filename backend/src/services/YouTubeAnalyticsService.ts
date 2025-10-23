@@ -32,10 +32,16 @@ export class YouTubeAnalyticsService {
     private youtubeAnalytics: any;
 
     constructor() {
-        this.oauth2Client = new google.auth.OAuth2(
+        // Detectar automaticamente a URL de redirecionamento baseado no ambiente
+        const redirectUri = process.env.YOUTUBE_REDIRECT_URI || 
+            (process.env.NODE_ENV === 'production' 
+                ? 'https://adbot-lives.onrender.com/api/auth/callback'
+                : 'http://localhost:3001/api/auth/callback');
+
+        const oauth2Client = new google.auth.OAuth2(
             process.env.YOUTUBE_CLIENT_ID,
             process.env.YOUTUBE_CLIENT_SECRET,
-            process.env.YOUTUBE_REDIRECT_URI
+            redirectUri
         );
 
         this.youtubeAnalytics = google.youtubeAnalytics({
