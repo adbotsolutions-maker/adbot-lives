@@ -47,8 +47,8 @@ app.use(session({
     sameSite: isProduction ? 'none' : 'lax', // 'none' for production cross-origin, 'lax' for local
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days default
-    path: '/',
-    domain: isProduction ? undefined : 'localhost' // Explicit domain for localhost
+    path: '/'
+    // No domain restriction to allow cross-domain cookies
   }
 }));
 
@@ -66,11 +66,21 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-  exposedHeaders: ['set-cookie'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With'],
+  exposedHeaders: ['Set-Cookie'],
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
+
+// Manual CORS headers for production debugging
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  next();
+});
 
 app.use(express.json());
 
