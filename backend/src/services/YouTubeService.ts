@@ -309,4 +309,90 @@ export class YouTubeService {
       throw new Error(`YouTube API Error: ${error.message}`);
     }
   }
+
+  // Obter status do stream
+  async getStreamStatus(streamId: string) {
+    try {
+      const response = await this.youtube.liveStreams.list({
+        part: ['status', 'id'],
+        id: [streamId]
+      });
+
+      const stream = response.data.items?.[0];
+      if (!stream) {
+        throw new Error('Stream not found');
+      }
+
+      return {
+        streamStatus: stream.status?.streamStatus,
+        healthStatus: stream.status?.healthStatus?.status
+      };
+    } catch (error: any) {
+      console.error('Erro ao obter status do stream:', error.message);
+      throw new Error(`YouTube API Error: ${error.message}`);
+    }
+  }
+
+  // Aguardar até o stream ficar ativo
+  async waitForStreamActive(
+    streamId: string,
+    options: {
+      maxAttempts?: number;
+      intervalMs?: number;
+      onProgress?: (attempt: number, status: string) => void;
+    } = {}
+  ): Promise<boolean> {
+    const maxAttempts = options.maxAttempts || 60; // 60 tentativas (5 minutos no padrão)
+    const intervalMs = options.intervalMs || 5000; // 5 segundos entre tentativas
+
+    console.log(`🔍 Aguardando stream ${streamId} ficar ativo...`);
+    console.log(`⏱️  Configuração: ${maxAttempts} tentativas, intervalo de ${intervalMs}ms`);
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const { streamStatus, healthStatus } = await this.getStreamStatus(streamId);
+        
+        console.log(`📊 Tentativa ${attempt}/${maxAttempts}: streamStatus="${streamStatus}", healthStatus="${healthStatus}"`);
+        
+        if (options.onProgress) {
+          options.onProgress(attempt, streamStatus || 'unknown');
+        }
+
+        // Stream está ativo e saudável
+        if (streamStatus === 'active') {
+          console.log('✅ Stream está ATIVO!');
+          return true;
+        }
+
+        // Stream está em erro
+        if (streamStatus === 'error') {
+          console.error('❌ Stream entrou em estado de erro');
+          throw new Error('Stream entered error state');
+        }
+
+        // Aguardar antes da próxima tentativa
+        if (attempt < maxAttempts) {
+          console.log(`⏳ Aguardando ${intervalMs / 1000}s antes da próxima verificação...`);
+          await this.sleep(intervalMs);
+        }
+      } catch (error: any) {
+        console.error(`⚠️ Erro na tentativa ${attempt}:`, error.message);
+        
+        // Se não for o último attempt, continuar tentando
+        if (attempt < maxAttempts) {
+          await this.sleep(intervalMs);
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    console.error('❌ Timeout: Stream não ficou ativo no tempo esperado');
+    return false;
+  }
+
+  // Helper para aguardar
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 }

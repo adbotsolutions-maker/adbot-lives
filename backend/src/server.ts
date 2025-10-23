@@ -496,12 +496,8 @@ app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
       );
     }
 
-    // 4. Transitar broadcast para "testing"
-    console.log('🔄 Transicionando para testing...');
-    await youtubeService.transitionBroadcast(broadcast.broadcastId!, 'testing');
-
-    // 5. Iniciar FFmpeg stream no VPS
-    console.log('🎥 Iniciando streaming FFmpeg...');
+    // 4. Iniciar FFmpeg stream no VPS PRIMEIRO
+    console.log('🎥 Iniciando streaming FFmpeg no VPS...');
     currentFFmpegPid = await vpsService.startFFmpegStream({
       streamUrl: broadcast.rtmpUrl || 'rtmp://a.rtmp.youtube.com/live2',
       streamKey: broadcast.streamKey || '',
@@ -512,18 +508,49 @@ app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
       loopDuration: loopDuration ? parseInt(loopDuration) : undefined,
       loopCount: loopCount ? parseInt(loopCount) : undefined
     });
+    console.log(`✅ FFmpeg iniciado com PID: ${currentFFmpegPid}`);
 
-    // 6. Aguardar e transitar para "live"
-    setTimeout(async () => {
-      try {
-        console.log('📡 Transicionando para LIVE...');
-        await youtubeService.transitionBroadcast(broadcast.broadcastId!, 'live');
-        activeBroadcastId = broadcast.broadcastId!;
-        io.emit('broadcast:live', { broadcastId: broadcast.broadcastId });
-      } catch (error) {
-        console.error('Erro ao transitar para live:', error);
+    // 5. Aguardar alguns segundos para FFmpeg estabilizar
+    console.log('⏳ Aguardando 10s para FFmpeg inicializar...');
+    await new Promise(resolve => setTimeout(resolve, 10000));
+
+    // 6. Aguardar stream ficar ativo (polling do YouTube API)
+    console.log('� Monitorando status do stream no YouTube...');
+    const streamActive = await youtubeService.waitForStreamActive(
+      broadcast.streamId!,
+      {
+        maxAttempts: 60, // 5 minutos máximo
+        intervalMs: 5000, // Verificar a cada 5 segundos
+        onProgress: (attempt, status) => {
+          io.emit('stream:status', {
+            broadcastId: broadcast.broadcastId,
+            attempt,
+            status,
+            message: `Verificando stream... (${attempt}/60)`
+          });
+        }
       }
-    }, 10000); // 10 segundos para o stream estabilizar
+    );
+
+    if (!streamActive) {
+      throw new Error('Stream não ficou ativo após 5 minutos. Verifique a conexão FFmpeg.');
+    }
+
+    // 7. Transitar broadcast para "testing" (agora que o stream está ativo)
+    console.log('🔄 Stream ativo! Transicionando broadcast para TESTING...');
+    await youtubeService.transitionBroadcast(broadcast.broadcastId!, 'testing');
+    io.emit('broadcast:testing', { broadcastId: broadcast.broadcastId });
+
+    // 8. Aguardar alguns segundos para estabilizar no testing
+    console.log('⏳ Aguardando 15s no modo testing...');
+    await new Promise(resolve => setTimeout(resolve, 15000));
+
+    // 9. Transitar para "live" (ao vivo público)
+    console.log('📡 Transicionando para LIVE (público)...');
+    await youtubeService.transitionBroadcast(broadcast.broadcastId!, 'live');
+    activeBroadcastId = broadcast.broadcastId!;
+    io.emit('broadcast:live', { broadcastId: broadcast.broadcastId });
+    console.log('🎉 Broadcast está AO VIVO!');
 
     res.json({
       success: true,
