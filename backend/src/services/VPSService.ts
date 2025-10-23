@@ -141,8 +141,8 @@ export class VPSService extends EventEmitter {
           const durationArgs = durationFlag ? durationFlag.split(' ') : [];
           const args = [
             ...loopArgs,
-            '-re', '-i', config.videoPath,
-            '-stream_loop', '-1', '-i', config.audioPath,
+            '-re', '-i', `"${config.videoPath}"`,
+            '-stream_loop', '-1', '-i', `"${config.audioPath}"`,
             '-map', '0:v', '-map', '1:a',
             '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
             '-pix_fmt', 'yuv420p', '-g', '50',
@@ -157,8 +157,8 @@ export class VPSService extends EventEmitter {
           const durationArgs = durationFlag ? durationFlag.split(' ') : [];
           const args = [
             ...loopArgs,
-            '-re', '-i', config.videoPath,
-            '-stream_loop', '-1', '-i', config.audioPath,
+            '-re', '-i', `"${config.videoPath}"`,
+            '-stream_loop', '-1', '-i', `"${config.audioPath}"`,
             '-filter_complex', '[0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=2[aout]',
             '-map', '0:v', '-map', '[aout]',
             '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
@@ -177,7 +177,7 @@ export class VPSService extends EventEmitter {
           const durationArgs = durationFlag ? durationFlag.split(' ') : [];
           const args = [
             ...loopArgs,
-            '-re', '-i', config.videoPath,
+            '-re', '-i', `"${config.videoPath}"`,
             '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
             '-pix_fmt', 'yuv420p', '-g', '50', '-an',
             ...durationArgs,
@@ -190,7 +190,7 @@ export class VPSService extends EventEmitter {
           const durationArgs = durationFlag ? durationFlag.split(' ') : [];
           const args = [
             ...loopArgs,
-            '-re', '-i', config.videoPath,
+            '-re', '-i', `"${config.videoPath}"`,
             '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
             '-pix_fmt', 'yuv420p', '-g', '50',
             '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
