@@ -20,7 +20,10 @@ export class GoogleDriveService {
    */
   async listVideos(maxResults: number = 20) {
     try {
-      const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || '1jABnVVpYT3IVR6O3XMYy6luRNkefkLVE';
+      const folderId = process.env.GOOGLE_DRIVE_VIDEO_FOLDER_ID;
+      if (!folderId) {
+        throw new Error('GOOGLE_DRIVE_VIDEO_FOLDER_ID não configurado nas variáveis de ambiente');
+      }
       const response = await this.drive.files.list({
         q: `mimeType contains 'video/' and trashed=false and '${folderId}' in parents`,
         fields: 'files(id, name, mimeType, size, createdTime, thumbnailLink, webViewLink)',
@@ -40,7 +43,10 @@ export class GoogleDriveService {
    */
   async listAudio(maxResults: number = 20) {
     try {
-      const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || '1jABnVVpYT3IVR6O3XMYy6luRNkefkLVE';
+      const folderId = process.env.GOOGLE_DRIVE_AUDIO_FOLDER_ID;
+      if (!folderId) {
+        throw new Error('GOOGLE_DRIVE_AUDIO_FOLDER_ID não configurado nas variáveis de ambiente');
+      }
       const response = await this.drive.files.list({
         q: `mimeType contains 'audio/' and trashed=false and '${folderId}' in parents`,
         fields: 'files(id, name, mimeType, size, createdTime, webViewLink)',
@@ -51,6 +57,29 @@ export class GoogleDriveService {
       return response.data.files || [];
     } catch (error: any) {
       console.error('Erro ao listar áudios do Drive:', error.message);
+      throw new Error(`Google Drive Error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Lista arquivos de imagem no Google Drive
+   */
+  async listImages(maxResults: number = 20) {
+    try {
+      const folderId = process.env.GOOGLE_DRIVE_IMAGE_FOLDER_ID;
+      if (!folderId) {
+        throw new Error('GOOGLE_DRIVE_IMAGE_FOLDER_ID não configurado nas variáveis de ambiente');
+      }
+      const response = await this.drive.files.list({
+        q: `mimeType contains 'image/' and trashed=false and '${folderId}' in parents`,
+        fields: 'files(id, name, mimeType, size, createdTime, thumbnailLink, webViewLink)',
+        pageSize: maxResults,
+        orderBy: 'modifiedTime desc'
+      });
+
+      return response.data.files || [];
+    } catch (error: any) {
+      console.error('Erro ao listar imagens do Drive:', error.message);
       throw new Error(`Google Drive Error: ${error.message}`);
     }
   }

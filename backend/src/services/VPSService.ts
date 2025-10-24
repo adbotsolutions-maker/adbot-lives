@@ -12,7 +12,8 @@ export interface VPSConfig {
 export interface FFmpegConfig {
   streamUrl: string;
   streamKey: string;
-  videoPath: string;
+  videoPath?: string; // Caminho para arquivo de vídeo (opcional se imagePath for fornecido)
+  imagePath?: string; // Caminho para arquivo de imagem (opcional se videoPath for fornecido)
   audioPath?: string; // Caminho para arquivo de áudio (música de fundo)
   removeAudio?: boolean; // Remove todo o áudio do vídeo (mudo)
   loop?: boolean; // Deprecated - usar loopType
@@ -120,88 +121,138 @@ export class VPSService extends EventEmitter {
       let loopFlag = '';
       let durationFlag = '';
 
-      if (loopType === 'infinite') {
-        loopFlag = '-stream_loop -1';
-      } else if (loopType === 'count' && config.loopCount) {
-        // -1 significa infinito, então loopCount - 1 (ex: 3 repetições = -stream_loop 2)
-        loopFlag = `-stream_loop ${config.loopCount - 1}`;
-      } else if (loopType === 'duration' && config.loopDuration) {
-        // Loop infinito mas com tempo máximo
-        loopFlag = '-stream_loop -1';
-        durationFlag = `-t ${config.loopDuration}`;
+      // Para imagens, não usamos -stream_loop, usamos -loop 1 no input e -t para duração
+      const isImage = !!config.imagePath;
+
+      if (!isImage) {
+        // Lógica de loop para vídeos
+        if (loopType === 'infinite') {
+          loopFlag = '-stream_loop -1';
+        } else if (loopType === 'count' && config.loopCount) {
+          loopFlag = `-stream_loop ${config.loopCount - 1}`;
+        } else if (loopType === 'duration' && config.loopDuration) {
+          loopFlag = '-stream_loop -1';
+          durationFlag = `-t ${config.loopDuration}`;
+        }
+      } else {
+        // Lógica de loop para imagens
+        if (loopType === 'duration' && config.loopDuration) {
+          durationFlag = `-t ${config.loopDuration}`;
+        } else if (loopType === 'infinite') {
+          // Imagem infinita - usar tempo muito longo (24 horas)
+          durationFlag = `-t 86400`;
+        } else if (loopType === 'count' && config.loopCount) {
+          // Para imagem, count não faz muito sentido, mas podemos usar duração baseada em tempo fixo por "repetição"
+          const duration = config.loopCount * 300; // 5 minutos por "repetição"
+          durationFlag = `-t ${duration}`;
+        }
       }
 
       let ffmpegCommand: string;
 
-      if (config.audioPath) {
-        // Comando com música de fundo
-        if (config.removeAudio) {
-          // Vídeo MUDO + Música de fundo (apenas o áudio da música)
-          const loopArgs = loopFlag ? loopFlag.split(' ') : [];
+      // ===== MODO IMAGEM =====
+      if (isImage) {
+        if (config.audioPath) {
+          // Imagem + Música de fundo
           const durationArgs = durationFlag ? durationFlag.split(' ') : [];
           const args = [
-            ...loopArgs,
-            '-re', '-i', `"${config.videoPath}"`,
+            '-loop', '1', '-framerate', '1', '-i', `"${config.imagePath}"`,
             '-stream_loop', '-1', '-i', `"${config.audioPath}"`,
-            '-map', '0:v', '-map', '1:a',
             '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
-            '-pix_fmt', 'yuv420p', '-g', '50',
+            '-pix_fmt', 'yuv420p', '-g', '50', '-r', '30',
             '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
             ...durationArgs,
             '-f', 'flv', fullStreamUrl
           ].filter(Boolean);
           ffmpegCommand = `nohup ffmpeg ${args.join(' ')} > /tmp/ffmpeg_stream.log 2>&1 & echo $!`;
         } else {
-          // Vídeo com áudio + Música de fundo (mixagem)
-          const loopArgs = loopFlag ? loopFlag.split(' ') : [];
+          // Imagem sem áudio (mudo)
           const durationArgs = durationFlag ? durationFlag.split(' ') : [];
           const args = [
-            ...loopArgs,
-            '-re', '-i', `"${config.videoPath}"`,
-            '-stream_loop', '-1', '-i', `"${config.audioPath}"`,
-            '-filter_complex', '[0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=2[aout]',
-            '-map', '0:v', '-map', '[aout]',
+            '-loop', '1', '-framerate', '1', '-i', `"${config.imagePath}"`,
             '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
-            '-pix_fmt', 'yuv420p', '-g', '50',
-            '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
-            ...durationArgs,
-            '-f', 'flv', fullStreamUrl
-          ].filter(Boolean);
-          ffmpegCommand = `nohup ffmpeg ${args.join(' ')} > /tmp/ffmpeg_stream.log 2>&1 & echo $!`;
-        }
-      } else {
-        // Sem música de fundo
-        if (config.removeAudio) {
-          // Vídeo MUDO (sem áudio algum)
-          const loopArgs = loopFlag ? loopFlag.split(' ') : [];
-          const durationArgs = durationFlag ? durationFlag.split(' ') : [];
-          const args = [
-            ...loopArgs,
-            '-re', '-i', `"${config.videoPath}"`,
-            '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
-            '-pix_fmt', 'yuv420p', '-g', '50', '-an',
-            ...durationArgs,
-            '-f', 'flv', fullStreamUrl
-          ].filter(Boolean);
-          ffmpegCommand = `nohup ffmpeg ${args.join(' ')} > /tmp/ffmpeg_stream.log 2>&1 & echo $!`;
-        } else {
-          // Vídeo com áudio normal
-          const loopArgs = loopFlag ? loopFlag.split(' ') : [];
-          const durationArgs = durationFlag ? durationFlag.split(' ') : [];
-          const args = [
-            ...loopArgs,
-            '-re', '-i', `"${config.videoPath}"`,
-            '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
-            '-pix_fmt', 'yuv420p', '-g', '50',
-            '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
+            '-pix_fmt', 'yuv420p', '-g', '50', '-r', '30', '-an',
             ...durationArgs,
             '-f', 'flv', fullStreamUrl
           ].filter(Boolean);
           ffmpegCommand = `nohup ffmpeg ${args.join(' ')} > /tmp/ffmpeg_stream.log 2>&1 & echo $!`;
         }
       }
+      // ===== MODO VÍDEO =====
+      else if (config.videoPath) {
+        if (config.audioPath) {
+          // Comando com música de fundo
+          if (config.removeAudio) {
+            // Vídeo MUDO + Música de fundo (apenas o áudio da música)
+            const loopArgs = loopFlag ? loopFlag.split(' ') : [];
+            const durationArgs = durationFlag ? durationFlag.split(' ') : [];
+            const args = [
+              ...loopArgs,
+              '-re', '-i', `"${config.videoPath}"`,
+              '-stream_loop', '-1', '-i', `"${config.audioPath}"`,
+              '-map', '0:v', '-map', '1:a',
+              '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
+              '-pix_fmt', 'yuv420p', '-g', '50',
+              '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
+              ...durationArgs,
+              '-f', 'flv', fullStreamUrl
+            ].filter(Boolean);
+            ffmpegCommand = `nohup ffmpeg ${args.join(' ')} > /tmp/ffmpeg_stream.log 2>&1 & echo $!`;
+          } else {
+            // Vídeo com áudio + Música de fundo (mixagem)
+            const loopArgs = loopFlag ? loopFlag.split(' ') : [];
+            const durationArgs = durationFlag ? durationFlag.split(' ') : [];
+            const args = [
+              ...loopArgs,
+              '-re', '-i', `"${config.videoPath}"`,
+              '-stream_loop', '-1', '-i', `"${config.audioPath}"`,
+              '-filter_complex', '[0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=2[aout]',
+              '-map', '0:v', '-map', '[aout]',
+              '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
+              '-pix_fmt', 'yuv420p', '-g', '50',
+              '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
+              ...durationArgs,
+              '-f', 'flv', fullStreamUrl
+            ].filter(Boolean);
+            ffmpegCommand = `nohup ffmpeg ${args.join(' ')} > /tmp/ffmpeg_stream.log 2>&1 & echo $!`;
+          }
+        } else {
+          // Sem música de fundo
+          if (config.removeAudio) {
+            // Vídeo MUDO (sem áudio algum)
+            const loopArgs = loopFlag ? loopFlag.split(' ') : [];
+            const durationArgs = durationFlag ? durationFlag.split(' ') : [];
+            const args = [
+              ...loopArgs,
+              '-re', '-i', `"${config.videoPath}"`,
+              '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
+              '-pix_fmt', 'yuv420p', '-g', '50', '-an',
+              ...durationArgs,
+              '-f', 'flv', fullStreamUrl
+            ].filter(Boolean);
+            ffmpegCommand = `nohup ffmpeg ${args.join(' ')} > /tmp/ffmpeg_stream.log 2>&1 & echo $!`;
+          } else {
+            // Vídeo com áudio normal
+            const loopArgs = loopFlag ? loopFlag.split(' ') : [];
+            const durationArgs = durationFlag ? durationFlag.split(' ') : [];
+            const args = [
+              ...loopArgs,
+              '-re', '-i', `"${config.videoPath}"`,
+              '-c:v', 'libx264', '-preset', 'veryfast', '-maxrate', '3000k', '-bufsize', '6000k',
+              '-pix_fmt', 'yuv420p', '-g', '50',
+              '-c:a', 'aac', '-b:a', '128k', '-ar', '44100',
+              ...durationArgs,
+              '-f', 'flv', fullStreamUrl
+            ].filter(Boolean);
+            ffmpegCommand = `nohup ffmpeg ${args.join(' ')} > /tmp/ffmpeg_stream.log 2>&1 & echo $!`;
+          }
+        }
+      } else {
+        throw new Error('Nem videoPath nem imagePath foram fornecidos');
+      }
 
       console.log('🎥 Iniciando FFmpeg no VPS...');
+      console.log('Modo:', isImage ? '📷 Imagem' : '🎬 Vídeo');
       console.log('Loop config:', { loopType, loopFlag, durationFlag });
       const pid = await this.executeCommand(ffmpegCommand);
 

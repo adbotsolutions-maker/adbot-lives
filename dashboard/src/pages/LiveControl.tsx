@@ -35,8 +35,10 @@ export function LiveControl() {
   // Google Drive media
   const [driveVideos, setDriveVideos] = useState<DriveFile[]>([])
   const [driveAudio, setDriveAudio] = useState<DriveFile[]>([])
+  const [driveImages, setDriveImages] = useState<DriveFile[]>([])
   const [selectedVideo, setSelectedVideo] = useState<DriveFile | null>(null)
   const [selectedAudio, setSelectedAudio] = useState<DriveFile | null>(null)
+  const [selectedImage, setSelectedImage] = useState<DriveFile | null>(null)
   const [loadingMedia, setLoadingMedia] = useState(false)
 
   // Active broadcast
@@ -76,9 +78,10 @@ export function LiveControl() {
     try {
       setLoadingMedia(true)
       
-      const [videosRes, audioRes] = await Promise.all([
+      const [videosRes, audioRes, imagesRes] = await Promise.all([
         fetch(API_ENDPOINTS.drive.videos, { credentials: 'include' }),
-        fetch(API_ENDPOINTS.drive.audio, { credentials: 'include' })
+        fetch(API_ENDPOINTS.drive.audio, { credentials: 'include' }),
+        fetch(API_ENDPOINTS.drive.images, { credentials: 'include' })
       ])
 
       if (videosRes.ok) {
@@ -90,6 +93,11 @@ export function LiveControl() {
         const { audio } = await audioRes.json()
         setDriveAudio(audio || [])
       }
+
+      if (imagesRes.ok) {
+        const { images } = await imagesRes.json()
+        setDriveImages(images || [])
+      }
     } catch (error) {
       console.error('Erro ao buscar mídia do Drive:', error)
     } finally {
@@ -98,8 +106,8 @@ export function LiveControl() {
   }
 
   const handleStart = async () => {
-    if (!title || !selectedVideo) {
-      alert('Preencha o título e selecione um vídeo')
+    if (!title || (!selectedVideo && !selectedImage)) {
+      alert('Preencha o título e selecione um vídeo ou imagem')
       return
     }
 
@@ -118,10 +126,14 @@ export function LiveControl() {
           title,
           description,
           scheduledStartTime: isScheduled && scheduledStartTime ? new Date(scheduledStartTime).toISOString() : new Date().toISOString(),
-          videoSource: {
+          videoSource: selectedVideo ? {
             type: 'drive',
             fileId: selectedVideo.id
-          },
+          } : null,
+          imageSource: selectedImage ? {
+            type: 'drive',
+            fileId: selectedImage.id
+          } : null,
           audioSource: selectedAudio ? {
             type: 'drive',
             fileId: selectedAudio.id
@@ -185,6 +197,7 @@ export function LiveControl() {
       setDescription('')
       setSelectedVideo(null)
       setSelectedAudio(null)
+      setSelectedImage(null)
 
       alert('✅ Live finalizada com sucesso!')
       
@@ -307,8 +320,10 @@ export function LiveControl() {
                 onChange={(e) => {
                   const video = driveVideos.find(v => v.id === e.target.value)
                   setSelectedVideo(video || null)
+                  if (video) setSelectedImage(null) // Limpa imagem se selecionar vídeo
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={!!selectedImage}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Selecione um vídeo do Drive</option>
                 {driveVideos.map((video) => (
@@ -319,6 +334,42 @@ export function LiveControl() {
               </select>
               {driveVideos.length === 0 && !loadingMedia && (
                 <p className="text-sm text-gray-500 mt-1">Conecte sua conta do YouTube nas configurações para acessar o Drive</p>
+              )}
+            </div>
+
+            {/* OU separator */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gray-300"></div>
+              <span className="text-sm font-medium text-gray-500">OU</span>
+              <div className="flex-1 h-px bg-gray-300"></div>
+            </div>
+
+            {/* Image Selection from Google Drive */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📷 Imagem (Google Drive)
+              </label>
+              <select
+                value={selectedImage?.id || ''}
+                onChange={(e) => {
+                  const image = driveImages.find(i => i.id === e.target.value)
+                  setSelectedImage(image || null)
+                  if (image) setSelectedVideo(null) // Limpa vídeo se selecionar imagem
+                }}
+                disabled={!!selectedVideo}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="">Selecione uma imagem do Drive</option>
+                {driveImages.map((image) => (
+                  <option key={image.id} value={image.id}>
+                    {image.name}
+                  </option>
+                ))}
+              </select>
+              {selectedImage && (
+                <p className="text-xs text-gray-600 mt-2 bg-blue-50 border border-blue-200 rounded p-2">
+                  💡 A imagem será transmitida como uma live estática (respeitando loop e áudio configurados)
+                </p>
               )}
             </div>
 

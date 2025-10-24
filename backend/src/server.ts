@@ -454,7 +454,7 @@ app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
 
     youtubeService.setCredentials(tokens);
 
-    const { title, description, videoSource, audioSource, loopType, loopDuration, loopCount, removeAudio } = req.body;
+    const { title, description, videoSource, imageSource, audioSource, loopType, loopDuration, loopCount, removeAudio } = req.body;
 
     // 1. Criar broadcast no YouTube
     console.log('📺 Criando broadcast no YouTube...');
@@ -477,7 +477,8 @@ app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
     }
 
     // 3. Baixar mídia do Google Drive para o VPS (se necessário)
-    let videoPath = '/root/videos/default.mp4';
+    let videoPath: string | undefined;
+    let imagePath: string | undefined;
     let audioPath: string | undefined;
     
     if (videoSource?.type === 'drive' && videoSource?.fileId) {
@@ -499,6 +500,28 @@ app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
       // Verificar se o arquivo foi baixado corretamente
       const fileCheck = await vpsService.executeCommand(`ls -lh "${videoPath}"`);
       console.log('📊 Arquivo baixado:', fileCheck);
+    }
+
+    // Baixar imagem se fornecida
+    if (imageSource?.type === 'drive' && imageSource?.fileId) {
+      console.log('📷 Baixando imagem do Google Drive via OAuth...');
+      const driveService = new GoogleDriveService(youtubeService['oauth2Client']);
+      const imageMetadata = await driveService.getFileMetadata(imageSource.fileId);
+      imagePath = `/root/images/${imageMetadata.name}`;
+      
+      // Criar diretório no VPS
+      await vpsService.executeCommand(`mkdir -p /root/images`);
+      
+      // Baixar usando a API do Drive com OAuth via SFTP
+      await driveService.downloadFileToVPS(
+        imageSource.fileId,
+        imagePath,
+        vpsService.client
+      );
+      
+      // Verificar se o arquivo foi baixado corretamente
+      const fileCheck = await vpsService.executeCommand(`ls -lh "${imagePath}"`);
+      console.log('📊 Imagem baixada:', fileCheck);
     }
 
     // Baixar áudio se fornecido
@@ -529,6 +552,7 @@ app.post('/api/live/create-and-start', requireAuth, async (req, res) => {
       streamUrl: broadcast.rtmpUrl || 'rtmp://a.rtmp.youtube.com/live2',
       streamKey: broadcast.streamKey || '',
       videoPath,
+      imagePath, // Passa o caminho da imagem se existir
       audioPath, // Passa o caminho do áudio se existir
       removeAudio: removeAudio || false, // Remove áudio se marcado
       loopType: loopType || 'infinite',
@@ -776,6 +800,23 @@ app.get('/api/drive/audio', requireAuth, async (req, res) => {
     
     const audio = await driveService.listAudio(20);
     res.json({ audio });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/drive/images', requireAuth, async (req, res) => {
+  try {
+    const tokens = (req.session as any).youtubeTokens;
+    if (!tokens) {
+      return res.status(401).json({ error: 'Not authenticated with Google' });
+    }
+
+    youtubeService.setCredentials(tokens);
+    const driveService = new GoogleDriveService(youtubeService['oauth2Client']);
+    
+    const images = await driveService.listImages(20);
+    res.json({ images });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }

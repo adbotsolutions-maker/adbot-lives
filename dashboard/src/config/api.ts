@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
   drive: {
     videos: `${API_BASE_URL}/api/drive/videos`,
     audio: `${API_BASE_URL}/api/drive/audio`,
+    images: `${API_BASE_URL}/api/drive/images`,
   },
   analytics: {
     channel: `${API_BASE_URL}/api/analytics/channel`,
